@@ -7,7 +7,7 @@
 export * from './reflection';
 export * from './reflectionEngine';
 export * from './embeddings';
-// export * from './evaluation'; // File doesn't exist yet
+export * from './evaluation';
 export * from './reflectionHelpers';
 export * from './inMemoryReflectionStore';
 export * from './fileReflectionStore';
