@@ -312,6 +312,25 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
     { evaluation: teEvaluation }
   );
 
+  // Run adaptation engine periodically (every 10th run or so)
+  // This allows the system to learn and adjust defaults
+  try {
+    const { getAdaptationEngine } = await import('./adaptation');
+    const adaptationEngine = getAdaptationEngine();
+    
+    // Only run adaptation analysis occasionally to avoid performance impact
+    const shouldRunAdaptation = Math.random() < 0.1; // 10% chance
+    if (shouldRunAdaptation) {
+      await adaptationEngine.computeAndApplyAdjustments({
+        userId: input.userId,
+        sessionId: input.sessionId,
+      });
+    }
+  } catch (error) {
+    // Don't fail the flow if adaptation fails
+    console.error('[demoFlow] Adaptation engine error:', error);
+  }
+
   return {
     context,
     mode,
