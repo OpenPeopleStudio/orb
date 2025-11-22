@@ -139,7 +139,7 @@ export const getOrbPalette = (role: OrbRole): OrbPalette => ({
   accent: ROLE_ACCENTS[role],
 });
 
-export const createOrbRoleContext = (
+export const createOrbRoleDisplayContext = (
   role: OrbRole,
   overrides: Partial<Omit<OrbRoleContext, 'role'>> = {},
 ): OrbRoleContext => {
@@ -157,7 +157,7 @@ export const createOrbRoleContext = (
 
 export const ORB_ROLE_CONTEXTS: Record<OrbRole, OrbRoleContext> = roleOrder.reduce(
   (acc, role) => {
-    acc[role] = createOrbRoleContext(role);
+    acc[role] = createOrbRoleDisplayContext(role);
     return acc;
   },
   {} as Record<OrbRole, OrbRoleContext>,

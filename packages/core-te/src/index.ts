@@ -18,7 +18,7 @@ export const reflect = (context: OrbContext, signals: string[]): Reflection => {
 
   return {
     role: context.role,
-    summary: `${context.title} reflects on ${signals.length} inputs and prioritizes quadrant ${emphasis + 1}.`,
+    summary: `${context.role.toUpperCase()} reflects on ${signals.length} inputs and prioritizes quadrant ${emphasis + 1}.`,
     actions,
     embeddingSeed,
     emphasisColor: palette.accent,
