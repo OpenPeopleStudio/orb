@@ -7,7 +7,7 @@ export const reflect = (context, signals) => {
     const embeddingSeed = Array.from({ length: 8 }, (_, index) => (joined.charCodeAt(index % joined.length) || 0) % 97);
     return {
         role: context.role,
-        summary: `${context.title} reflects on ${signals.length} inputs and prioritizes quadrant ${emphasis + 1}.`,
+        summary: `${context.role.toUpperCase()} reflects on ${signals.length} inputs and prioritizes quadrant ${emphasis + 1}.`,
         actions,
         embeddingSeed,
         emphasisColor: palette.accent,
