@@ -8,6 +8,6 @@
   },
   "include": ["src/**/*"],
   "references": [
-    { "path": "../core-orb" }
+    { "path": "../../orb-system/packages/core-orb" }
   ]
 }
