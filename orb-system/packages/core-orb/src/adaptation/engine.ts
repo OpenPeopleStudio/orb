@@ -83,10 +83,10 @@ export class AdaptationEngine {
     const events = await this.eventBus.query(filter || {});
 
     // Most used modes
-    const mostUsedModes = stats.mostUsedModes.map((item) => ({
+    const mostUsedModes = stats.mostUsedModes.map((item: { mode: string; count: number | unknown }) => ({
       mode: item.mode,
-      count: item.count,
-      percentage: stats.totalEvents > 0 ? item.count / stats.totalEvents : 0,
+      count: typeof item.count === 'number' ? item.count : Number(item.count) || 0,
+      percentage: stats.totalEvents > 0 ? (typeof item.count === 'number' ? item.count : Number(item.count) || 0) / stats.totalEvents : 0,
     }));
 
     // Device usage
@@ -97,10 +97,10 @@ export class AdaptationEngine {
       }
     }
     const deviceUsage = Object.entries(deviceCounts)
-      .map(([device, count]) => ({
+      .map(([device, count]: [string, number]) => ({
         device,
-        count,
-        percentage: stats.totalEvents > 0 ? count / stats.totalEvents : 0,
+        count: typeof count === 'number' ? count : Number(count) || 0,
+        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : Number(count) || 0) / stats.totalEvents : 0,
       }))
       .sort((a, b) => b.count - a.count);
 
