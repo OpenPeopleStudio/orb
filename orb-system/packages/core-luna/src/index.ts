@@ -10,6 +10,7 @@ export * from './sqlStore';
 export * from './filePreferencesStore';
 export * from './dbPreferencesStore';
 export * from './supabasePreferencesStore';
-export * from './modeService';
+export * from './modes';
+export { modeService } from './modes';
 export * from './actionEvaluator';
 export * from './presets';
