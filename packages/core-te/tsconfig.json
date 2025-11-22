@@ -7,7 +7,4 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../../orb-system/packages/core-orb" }
-  ]
 }
