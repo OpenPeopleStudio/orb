@@ -1,4 +1,50 @@
+// Re-export from orbRoles if it exists, otherwise define locally
+// Note: This file is in packages/core-orb which may be a different structure
+// The main package is in orb-system/packages/core-orb
 export type OrbRole = 'orb' | 'sol' | 'te' | 'mav' | 'luna' | 'forge';
+
+// Re-export runtime OrbContext if orbRoles exists
+try {
+  // Try to import from orbRoles (if it exists in this package)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const orbRoles = require('./orbRoles');
+  if (orbRoles.OrbContext) {
+    export type { OrbContext } from './orbRoles';
+    export { createOrbContext } from './orbRoles';
+  }
+} catch {
+  // orbRoles doesn't exist in this package, define a minimal one
+  export type OrbContext = {
+    role: OrbRole;
+    userId: string | null;
+    sessionId: string;
+    deviceId?: string;
+    mode?: string;
+    persona?: string;
+    timestamp?: Date;
+  };
+  
+  export function createOrbContext(
+    role: OrbRole,
+    sessionId: string,
+    options?: {
+      userId?: string | null;
+      deviceId?: string;
+      mode?: string;
+      persona?: string;
+    }
+  ): OrbContext {
+    return {
+      role,
+      userId: options?.userId ?? null,
+      sessionId,
+      deviceId: options?.deviceId,
+      mode: options?.mode,
+      persona: options?.persona,
+      timestamp: new Date(),
+    };
+  }
+}
 
 export interface OrbPalette {
   surface: string;
@@ -8,8 +54,39 @@ export interface OrbPalette {
   accent: string;
 }
 
-// Note: OrbContext is exported from './orbRoles' (runtime context with userId/sessionId)
-// This is a display/UI context for role presentation
+// Runtime OrbContext (with userId/sessionId) - used throughout the system
+export type OrbContext = {
+  role: OrbRole;
+  userId: string | null;
+  sessionId: string;
+  deviceId?: string;
+  mode?: string;
+  persona?: string;
+  timestamp?: Date;
+};
+
+export function createOrbContext(
+  role: OrbRole,
+  sessionId: string,
+  options?: {
+    userId?: string | null;
+    deviceId?: string;
+    mode?: string;
+    persona?: string;
+  }
+): OrbContext {
+  return {
+    role,
+    userId: options?.userId ?? null,
+    sessionId,
+    deviceId: options?.deviceId,
+    mode: options?.mode,
+    persona: options?.persona,
+    timestamp: new Date(),
+  };
+}
+
+// This is a display/UI context for role presentation (separate from runtime OrbContext)
 export interface OrbRoleContext {
   role: OrbRole;
   title: string;
