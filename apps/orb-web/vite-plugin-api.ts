@@ -62,8 +62,12 @@ export function apiPlugin(): Plugin {
               // Parse query parameters
               const filter: any = {};
               
-              if (url.searchParams.get('type')) {
-                filter.type = url.searchParams.get('type');
+              // Parse type parameter - split comma-separated values into array
+              const typeParam = url.searchParams.get('type');
+              if (typeParam) {
+                filter.type = typeParam.includes(',') 
+                  ? typeParam.split(',').map(t => t.trim())
+                  : typeParam;
               }
               if (url.searchParams.get('userId')) {
                 filter.userId = url.searchParams.get('userId');
@@ -109,7 +113,13 @@ export function apiPlugin(): Plugin {
               
               req.on('end', async () => {
                 try {
-                  const { filter, stats } = JSON.parse(body || '{}');
+                  const { filter: rawFilter, stats } = JSON.parse(body || '{}');
+                  
+                  // Parse type parameter if it's a comma-separated string
+                  const filter = { ...rawFilter };
+                  if (filter.type && typeof filter.type === 'string' && filter.type.includes(',')) {
+                    filter.type = filter.type.split(',').map((t: string) => t.trim());
+                  }
                   
                   if (stats) {
                     const eventStats = await getEventStats(filter);
