@@ -8,7 +8,13 @@ const roleVoices = {
     forge: 'systems',
 };
 export const buildPersonaBrief = (role, overrides = {}) => {
-    const context = createOrbContext(role, overrides);
+    const sessionId = overrides.sessionId || `session-${Date.now()}`;
+    const context = createOrbContext(role, sessionId, {
+        userId: overrides.userId,
+        deviceId: overrides.deviceId,
+        mode: overrides.mode,
+        persona: overrides.persona,
+    });
     const principles = overrides.principles ?? [
         'lead with clarity',
         'bias to action',

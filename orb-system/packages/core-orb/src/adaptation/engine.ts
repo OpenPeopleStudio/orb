@@ -97,11 +97,14 @@ export class AdaptationEngine {
       }
     }
     const deviceUsage = Object.entries(deviceCounts)
-      .map(([device, count]: [string, number]) => ({
-        device,
-        count: typeof count === 'number' ? count : Number(count) || 0,
-        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : Number(count) || 0) / stats.totalEvents : 0,
-      }))
+      .map(([device, count]: [string, number]) => {
+        const countNum = typeof count === 'number' ? count : Number(count) || 0;
+        return {
+          device,
+          count: countNum,
+          percentage: stats.totalEvents > 0 ? countNum / stats.totalEvents : 0,
+        };
+      })
       .sort((a, b) => b.count - a.count);
 
     // Role activity
