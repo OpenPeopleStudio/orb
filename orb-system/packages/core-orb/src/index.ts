@@ -17,4 +17,5 @@ export * from './compaction';
 export * from './validation';
 export * from './supabase';
 export * from './migrateToSupabase';
+export * from './identity';
 

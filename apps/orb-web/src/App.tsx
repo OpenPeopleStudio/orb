@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import OrbDashboard from './components/OrbDashboard';
+import OrbConsole from './components/OrbConsole';
+
+type ViewMode = 'dashboard' | 'console';
 
 const App = () => {
+  const [viewMode, setViewMode] = useState<ViewMode>('console');
+
   return (
     <main className="min-h-screen bg-bg-root text-text-primary">
       <section className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-14">
@@ -12,7 +18,33 @@ const App = () => {
             mission context.
           </p>
         </header>
-        <OrbDashboard />
+        
+        {/* View Toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('console')}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+              viewMode === 'console'
+                ? 'bg-accent-orb text-white'
+                : 'bg-white/5 text-text-muted hover:bg-white/10'
+            }`}
+          >
+            Console
+          </button>
+          <button
+            onClick={() => setViewMode('dashboard')}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+              viewMode === 'dashboard'
+                ? 'bg-accent-orb text-white'
+                : 'bg-white/5 text-text-muted hover:bg-white/10'
+            }`}
+          >
+            Dashboard
+          </button>
+        </div>
+
+        {/* View Content */}
+        {viewMode === 'console' ? <OrbConsole /> : <OrbDashboard />}
       </section>
     </main>
   );
