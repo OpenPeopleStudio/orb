@@ -7,6 +7,8 @@
 
 import type { Plugin } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export function apiPlugin(): Plugin {
   return {
@@ -19,18 +21,42 @@ export function apiPlugin(): Plugin {
         }
 
         try {
-          // Parse URL
+          // Parse URL - req.url includes the pathname
           const url = new URL(req.url || '', `http://${req.headers.host}`);
           const pathname = url.pathname;
+          
+          // Debug logging
+          console.log('[API] Request:', req.method, pathname);
 
           // Handle /api/events
           if (pathname === '/api/events' || pathname === '/api/events/') {
             // Dynamic import to avoid bundling server code in client
-            // Import from the source directory relative to this file
-            const { queryEvents, getEventStats } = await import(
-              /* @vite-ignore */
-              './src/api/events'
-            );
+            // Resolve path relative to this plugin file (vite-plugin-api.ts is in apps/orb-web/)
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = path.dirname(__filename);
+            // vite-plugin-api.ts is in apps/orb-web/, so src/api/events.ts is relative to that
+            const eventsPath = path.resolve(__dirname, 'src/api/events.ts');
+            
+            console.log('[API] Loading events handler from:', eventsPath);
+            
+            // Try importing with .ts extension first, then .js
+            let eventsModule;
+            try {
+              eventsModule = await import(
+                /* @vite-ignore */
+                `file://${eventsPath}`
+              );
+            } catch (error) {
+              // Try .js extension if .ts fails
+              const eventsPathJs = eventsPath.replace(/\.ts$/, '.js');
+              console.log('[API] Trying .js extension:', eventsPathJs);
+              eventsModule = await import(
+                /* @vite-ignore */
+                `file://${eventsPathJs}`
+              );
+            }
+            
+            const { queryEvents, getEventStats } = eventsModule;
 
             if (req.method === 'GET') {
               // Parse query parameters
@@ -104,10 +130,8 @@ export function apiPlugin(): Plugin {
               });
             }
           } else {
-            // Unknown API route
-            res.statusCode = 404;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ error: 'Not found' }));
+            // Unknown API route - let it pass through
+            return next();
           }
         } catch (error) {
           console.error('[API] Error handling request:', error);
