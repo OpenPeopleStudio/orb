@@ -1,0 +1,28 @@
+{
+  "name": "@orb-system/core-sol",
+  "version": "0.1.0",
+  "description": "Inference/engine layer for Orb system (Sol)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "orb",
+    "sol",
+    "inference",
+    "engine",
+    "ai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@orb-system/core-orb": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

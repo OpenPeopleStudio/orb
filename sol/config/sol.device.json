@@ -1,0 +1,27 @@
+{
+  "deviceName": "Sol",
+  "role": "explorer_os_surface",
+  "description": "Primary exploration and OS surface design node – responsible for the Soma → Sol redesign.",
+  "os": "macos",
+  "hostnameHint": "SOL",
+  "linkedDevices": [
+    {
+      "name": "Luna",
+      "role": "forge_host",
+      "type": "windows+wsl",
+      "notes": "Build, automation, and multi-agent Forge node."
+    }
+  ],
+  "primaryRepos": [
+    {
+      "name": "soma-os",
+      "relativePath": "../",
+      "absolutePath": "/Users/mars/.cursor/worktrees/SomaOS/JzlBq",
+      "role": "app_surface",
+      "notes": "Swift/iOS implementation of SomaOS"
+    }
+  ],
+  "version": "1.0",
+  "lastUpdated": "2025-11-22"
+}
+

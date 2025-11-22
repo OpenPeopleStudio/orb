@@ -1,0 +1,29 @@
+{
+  "name": "@orb-system/core-luna",
+  "version": "0.1.0",
+  "description": "Preferences/intent layer for Orb system (Luna)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "orb",
+    "luna",
+    "preferences",
+    "intent",
+    "modes",
+    "personas"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@orb-system/core-orb": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

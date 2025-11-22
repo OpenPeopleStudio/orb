@@ -1,0 +1,16 @@
+{
+  "name": "soma-forge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SomaForge - Agent-building system monorepo",
+  "scripts": {
+    "dev": "pnpm --filter forge-web dev",
+    "build": "pnpm --filter forge-web build",
+    "lint": "pnpm --recursive lint"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
+

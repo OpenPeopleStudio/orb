@@ -1,0 +1,29 @@
+{
+  "name": "@orb-system/core-mav",
+  "version": "0.1.0",
+  "description": "Actions/tools layer for Orb system (Mav)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "orb",
+    "mav",
+    "actions",
+    "tools",
+    "tasks",
+    "flows"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@orb-system/core-orb": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

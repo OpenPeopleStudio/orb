@@ -1,0 +1,30 @@
+{
+  "name": "@orb-system/orb-web",
+  "version": "0.1.0",
+  "description": "Main UI/shell application for Orb system",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "orb",
+    "shell",
+    "ui"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@orb-system/core-orb": "workspace:*",
+    "@orb-system/core-sol": "workspace:*",
+    "@orb-system/core-te": "workspace:*",
+    "@orb-system/core-mav": "workspace:*",
+    "@orb-system/core-luna": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0"
+  }
+}
+
