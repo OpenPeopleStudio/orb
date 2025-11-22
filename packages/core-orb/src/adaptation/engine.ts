@@ -69,11 +69,14 @@ export class AdaptationEngine {
     const events = await this.eventBus.query(filter || {});
 
     // Most used modes
-    const mostUsedModes = stats.mostUsedModes.map((item) => ({
-      mode: item.mode,
-      count: item.count,
-      percentage: stats.totalEvents > 0 ? item.count / stats.totalEvents : 0,
-    }));
+    const mostUsedModes = stats.mostUsedModes.map((item: { mode: string; count: number | unknown }) => {
+      const countNum = typeof item.count === 'number' ? item.count : Number(item.count) || 0;
+      return {
+        mode: item.mode,
+        count: countNum,
+        percentage: stats.totalEvents > 0 ? countNum / stats.totalEvents : 0,
+      };
+    });
 
     // Device usage
     const deviceCounts: Record<string, number> = {};
@@ -92,11 +95,14 @@ export class AdaptationEngine {
 
     // Role activity
     const roleActivity = Object.entries(stats.byRole)
-      .map(([role, count]) => ({
-        role,
-        count,
-        percentage: stats.totalEvents > 0 ? count / stats.totalEvents : 0,
-      }))
+      .map(([role, count]: [string, number | unknown]) => {
+        const countNum = typeof count === 'number' ? count : Number(count) || 0;
+        return {
+          role,
+          count: countNum,
+          percentage: stats.totalEvents > 0 ? countNum / stats.totalEvents : 0,
+        };
+      })
       .sort((a, b) => b.count - a.count);
 
     // Failing features (tasks that fail frequently)
