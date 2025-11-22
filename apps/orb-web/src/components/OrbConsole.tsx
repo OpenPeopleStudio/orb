@@ -7,7 +7,9 @@
 
 import { useState } from 'react';
 import { runDemoFlow, type UIDemoFlowResult } from '../ui';
-import type { DemoFlowResult, OrbEvent, OrbEventType, EventStats } from '@orb-system/core-orb';
+import type { DemoFlowResult, OrbEvent, OrbEventType, EventStats, EventFilter, OrbRole, OrbMode } from '@orb-system/core-orb';
+import { OrbEventType, OrbMode } from '@orb-system/core-orb';
+import { OrbRole } from '@orb-system/core-orb';
 import { useEvents } from '../hooks/useEvents';
 
 type ModeId = 'default' | 'restaurant' | 'real_estate' | 'builder';
@@ -38,8 +40,15 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'flow' | 'events'>('flow');
   
+  // Event filter state
+  const [eventFilter, setEventFilter] = useState<EventFilter>({
+    limit: 50,
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  
   // Event stream
   const { events, stats, loading: eventsLoading, refresh: refreshEvents } = useEvents({
+    filter: eventFilter,
     autoRefresh: activeTab === 'events',
     refreshInterval: 2000,
   });
@@ -431,6 +440,168 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
           </>
         ) : (
           <div>
+            {/* Filter Controls */}
+            <div className="mb-4 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
+                  Event Filters
+                </h3>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="text-xs text-text-muted hover:text-text-primary"
+                >
+                  {showFilters ? 'Hide' : 'Show'} Filters
+                </button>
+              </div>
+              
+              {showFilters && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {/* Event Type Filter */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Event Type</label>
+                    <select
+                      value={Array.isArray(eventFilter.type) ? eventFilter.type[0] : eventFilter.type || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEventFilter({
+                          ...eventFilter,
+                          type: value ? (value as OrbEventType) : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    >
+                      <option value="">All Types</option>
+                      {Object.values(OrbEventType).map((type) => (
+                        <option key={type} value={type}>
+                          {type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Mode Filter */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Mode</label>
+                    <select
+                      value={eventFilter.mode || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEventFilter({
+                          ...eventFilter,
+                          mode: value ? (value as OrbMode) : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    >
+                      <option value="">All Modes</option>
+                      {Object.values(OrbMode).map((mode) => (
+                        <option key={mode} value={mode}>
+                          {mode.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Role Filter */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Role</label>
+                    <select
+                      value={eventFilter.role || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEventFilter({
+                          ...eventFilter,
+                          role: value ? (value as OrbRole) : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    >
+                      <option value="">All Roles</option>
+                      {Object.values(OrbRole).map((role) => (
+                        <option key={role} value={role}>
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Date From */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Date From</label>
+                    <input
+                      type="datetime-local"
+                      value={eventFilter.dateFrom ? new Date(eventFilter.dateFrom).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEventFilter({
+                          ...eventFilter,
+                          dateFrom: value ? new Date(value).toISOString() : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    />
+                  </div>
+                  
+                  {/* Date To */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Date To</label>
+                    <input
+                      type="datetime-local"
+                      value={eventFilter.dateTo ? new Date(eventFilter.dateTo).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEventFilter({
+                          ...eventFilter,
+                          dateTo: value ? new Date(value).toISOString() : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    />
+                  </div>
+                  
+                  {/* Limit */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Limit</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="1000"
+                      value={eventFilter.limit || 50}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        setEventFilter({
+                          ...eventFilter,
+                          limit: value > 0 ? value : undefined,
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Filter Actions */}
+              {showFilters && (
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEventFilter({ limit: 50 });
+                    }}
+                    className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-text-primary transition-opacity hover:opacity-80"
+                  >
+                    Clear Filters
+                  </button>
+                  <button
+                    onClick={refreshEvents}
+                    disabled={eventsLoading}
+                    className="rounded-lg bg-accent-orb px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              )}
+            </div>
+            
             {/* Event Statistics */}
             {renderEventStats()}
             
