@@ -77,3 +77,31 @@ CREATE POLICY "Service role can manage te_reflections" ON te_reflections
 CREATE POLICY "Service role can manage mav_actions" ON mav_actions
   FOR ALL USING (true) WITH CHECK (true);
 
+-- Orb events table (for event bus)
+CREATE TABLE IF NOT EXISTS orb_events (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  timestamp TIMESTAMPTZ NOT NULL,
+  user_id TEXT,
+  session_id TEXT,
+  device_id TEXT,
+  mode TEXT,
+  persona TEXT,
+  role TEXT,
+  payload JSONB NOT NULL DEFAULT '{}',
+  metadata JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_orb_events_type ON orb_events(type);
+CREATE INDEX IF NOT EXISTS idx_orb_events_user ON orb_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_orb_events_session ON orb_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_orb_events_timestamp ON orb_events(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_orb_events_mode ON orb_events(mode);
+CREATE INDEX IF NOT EXISTS idx_orb_events_role ON orb_events(role);
+
+ALTER TABLE orb_events ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role can manage orb_events" ON orb_events
+  FOR ALL USING (true) WITH CHECK (true);
+

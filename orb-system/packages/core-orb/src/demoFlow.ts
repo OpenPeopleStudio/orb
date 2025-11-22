@@ -18,6 +18,16 @@ import { createDefaultLunaStore, createDefaultTeStore } from './storeFactories';
 import { getEventBus } from './events/bus';
 import { OrbEventType, type OrbEvent } from './events/types';
 import { OrbMode } from './identity';
+import { initializeEventSinks } from './events/initializeSinks';
+
+// Initialize event sinks on module load (only once)
+let sinksInitialized = false;
+function ensureSinksInitialized() {
+  if (!sinksInitialized) {
+    initializeEventSinks();
+    sinksInitialized = true;
+  }
+}
 
 /**
  * NOTE: core-sol is currently a stub. Replace this with the real orchestrator once available.
@@ -108,6 +118,9 @@ export interface DemoFlowResult {
  * - If allowed, call Sol, execute a mock Mav task, and record Te evaluation
  */
 export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult> => {
+  // Ensure event sinks are initialized
+  ensureSinksInitialized();
+
   const context: OrbContext = {
     role: OrbRole.MAV,
     userId: input.userId,

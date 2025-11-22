@@ -6,4 +6,6 @@
 
 export * from './types';
 export * from './bus';
+export * from './sinks';
+export * from './initializeSinks';
 
