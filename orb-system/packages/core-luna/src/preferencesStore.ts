@@ -28,7 +28,14 @@ export class InMemoryLunaPreferencesStore implements LunaPreferencesStore {
     }
 
     // Create profile from preset defaults
-    const { preferences, constraints } = createProfileFromPreset(userId, modeId);
+    const { preferences, constraints: constraintStrings } = createProfileFromPreset(userId, modeId);
+    // Convert constraint strings to LunaConstraint objects
+    const constraints = constraintStrings.map((c, idx) => ({
+      id: `constraint-${modeId}-${idx}`,
+      type: 'other' as const,
+      active: true,
+      description: c,
+    }));
     const profile: LunaProfile = {
       userId,
       modeId,
