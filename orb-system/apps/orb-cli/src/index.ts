@@ -21,8 +21,8 @@ import {
   type ReadinessReport,
   OrbDevice,
   OrbMode,
+  getConfig,
 } from '@orb-system/core-orb';
-import { getConfig } from '@orb-system/core-orb';
 
 const args = process.argv.slice(2);
 

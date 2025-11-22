@@ -23,6 +23,7 @@ export * from './contacts';
 export * from './finances';
 export * from './events';
 export * from './adaptation';
+export { getAdaptationEngine, resetAdaptationEngine } from './adaptation/engine';
 export * from './system';
 export * from './domains';
 
