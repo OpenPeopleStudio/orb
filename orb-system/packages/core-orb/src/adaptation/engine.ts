@@ -9,10 +9,10 @@
  * automatically adjusts Orb's default behaviors based on usage.
  */
 
-import type { OrbEvent, EventFilter, EventStats } from '../events';
-import { OrbEventType } from '../events';
+import type { OrbEvent, EventFilter, EventStats, OrbEventType } from '../events/types';
+import { OrbEventType as EventTypeEnum } from '../events/types';
 import { getEventBus } from '../events/bus';
-import type { OrbDevice, OrbMode } from '../identity';
+import type { OrbDevice, OrbMode } from '../identity/types';
 import type { OrbRole } from '../orbRoles';
 
 /**
@@ -108,8 +108,8 @@ export class AdaptationEngine {
     const roleActivity = Object.entries(stats.byRole)
       .map(([role, count]) => ({
         role,
-        count,
-        percentage: stats.totalEvents > 0 ? count / stats.totalEvents : 0,
+        count: typeof count === 'number' ? count : 0,
+        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : 0) / stats.totalEvents : 0,
       }))
       .sort((a, b) => b.count - a.count);
 
@@ -117,9 +117,9 @@ export class AdaptationEngine {
     const taskFailures: Record<string, { failures: number; total: number }> = {};
     for (const event of events) {
       if (
-        event.type === OrbEventType.TASK_RUN ||
-        event.type === OrbEventType.TASK_COMPLETE ||
-        event.type === OrbEventType.TASK_FAIL
+        event.type === EventTypeEnum.TASK_RUN ||
+        event.type === EventTypeEnum.TASK_COMPLETE ||
+        event.type === EventTypeEnum.TASK_FAIL
       ) {
         const feature = (event.payload.feature as string) ||
           (event.payload.flow as string) ||
@@ -129,7 +129,7 @@ export class AdaptationEngine {
           taskFailures[feature] = { failures: 0, total: 0 };
         }
         taskFailures[feature].total++;
-        if (event.type === OrbEventType.TASK_FAIL) {
+        if (event.type === EventTypeEnum.TASK_FAIL) {
           taskFailures[feature].failures++;
         }
       }
@@ -158,10 +158,10 @@ export class AdaptationEngine {
     const taskDurations: number[] = [];
     const taskStartTimes: Map<string, number> = new Map();
     for (const event of events) {
-      if (event.type === OrbEventType.TASK_RUN) {
+      if (event.type === EventTypeEnum.TASK_RUN) {
         const taskId = (event.payload.taskId as string) || event.id;
         taskStartTimes.set(taskId, new Date(event.timestamp).getTime());
-      } else if (event.type === OrbEventType.TASK_COMPLETE || event.type === OrbEventType.TASK_FAIL) {
+      } else if (event.type === EventTypeEnum.TASK_COMPLETE || event.type === EventTypeEnum.TASK_FAIL) {
         const taskId = (event.payload.taskId as string) || event.id;
         const startTime = taskStartTimes.get(taskId);
         if (startTime) {
@@ -239,7 +239,7 @@ export class AdaptationEngine {
     }
 
     // Pattern: Frequent mode switching
-    const modeSwitches = events.filter((e) => e.type === OrbEventType.MODE_CHANGE).length;
+    const modeSwitches = events.filter((e) => e.type === EventTypeEnum.MODE_CHANGE).length;
     if (modeSwitches > 10 && stats.totalEvents > 0) {
       const switchRate = modeSwitches / stats.totalEvents;
       if (switchRate > 0.1) {
