@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-root: #05070a;
+  --bg-surface: #0c0f13;
+  --text-primary: #f5f7fa;
+  --text-muted: rgba(245, 247, 250, 0.68);
+  --accent-orb: #b9e4ff;
+  --accent-sol: #00a3ff;
+  --accent-te: #00ff9c;
+  --accent-mav: #ec742e;
+  --accent-luna: #8ea3c7;
+  --accent-forge: #e0b0ff;
+}
+
+body {
+  background-color: var(--bg-root);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+.glow-card {
+  background: linear-gradient(145deg, rgba(5, 7, 10, 0.8), rgba(12, 15, 19, 0.9));
+  border: 1px solid rgba(185, 228, 255, 0.08);
+  backdrop-filter: blur(12px);
+}

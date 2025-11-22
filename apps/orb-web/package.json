@@ -1,0 +1,33 @@
+{
+  "name": "@orb-system/orb-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@orb-system/core-luna": "workspace:*",
+    "@orb-system/core-mav": "workspace:*",
+    "@orb-system/core-orb": "workspace:*",
+    "@orb-system/core-sol": "workspace:*",
+    "@orb-system/core-te": "workspace:*",
+    "@orb-system/forge": "workspace:*",
+    "clsx": "^2.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.7",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  }
+}

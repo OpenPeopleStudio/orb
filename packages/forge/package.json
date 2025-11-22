@@ -1,0 +1,27 @@
+{
+  "name": "@orb-system/forge",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@orb-system/core-luna": "workspace:*",
+    "@orb-system/core-mav": "workspace:*",
+    "@orb-system/core-orb": "workspace:*",
+    "@orb-system/core-sol": "workspace:*",
+    "@orb-system/core-te": "workspace:*"
+  }
+}

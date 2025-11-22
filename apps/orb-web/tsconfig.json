@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts", "tailwind.config.ts"],
+  "references": [
+    { "path": "../../packages/core-orb" },
+    { "path": "../../packages/core-sol" },
+    { "path": "../../packages/core-te" },
+    { "path": "../../packages/core-mav" },
+    { "path": "../../packages/core-luna" },
+    { "path": "../../packages/forge" }
+  ]
+}
