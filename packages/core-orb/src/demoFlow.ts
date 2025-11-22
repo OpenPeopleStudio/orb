@@ -1,4 +1,3 @@
-import { OrbRole, type OrbContext } from './orbRoles';
 import {
   evaluateActionWithDefaults,
   type LunaActionDescriptor,
@@ -15,6 +14,8 @@ import {
   evaluateRun,
   type TeEvaluation,
 } from '@orb-system/core-te';
+
+import { OrbRole, type OrbContext } from './orbRoles';
 import { createDefaultLunaStore, createDefaultTeStore } from './storeFactories';
 
 /**
