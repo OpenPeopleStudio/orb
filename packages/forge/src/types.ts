@@ -64,7 +64,7 @@ export interface ForgeTask {
   /**
    * Arbitrary metadata (e.g. createdBy, createdAt).
    */
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 export interface ForgePlan {
@@ -72,7 +72,7 @@ export interface ForgePlan {
   goal: string;
   tasks: ForgeTask[];
   createdAt: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 /**

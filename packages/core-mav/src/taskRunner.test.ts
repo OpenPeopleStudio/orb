@@ -4,8 +4,9 @@
  * Tests that task runner stops on failure and logs properly.
  */
 
-import { runTaskWithDefaults } from './taskRunner';
 import { createOrbContext, OrbRole } from '@orb-system/core-orb';
+
+import { runTaskWithDefaults } from './taskRunner';
 import type { MavTask } from './taskRunner';
 
 describe('Mav Task Runner', () => {
@@ -80,11 +81,11 @@ describe('Mav Task Runner', () => {
 if (require.main === module) {
   const tests: Array<{ name: string; fn: () => Promise<void> }> = [];
 
-  function test(name: string, fn: () => Promise<void>) {
+  function _test(name: string, fn: () => Promise<void>) {
     tests.push({ name, fn });
   }
 
-  function expect(value: unknown) {
+  function _expect(value: unknown) {
     return {
       toBe(expected: unknown) {
         if (value !== expected) {

@@ -3,9 +3,11 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
 import { OrbRole, createOrbContext } from '@orb-system/core-orb';
-import { runTaskWithDefaults } from '../taskRunner';
+
 import { FileMavExecutor } from '../executors';
+import { runTaskWithDefaults } from '../taskRunner';
 import type { MavTask } from '../taskRunner';
 
 describe('Mav Task Runner', () => {
