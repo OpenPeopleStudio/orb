@@ -20,7 +20,7 @@ const DEFAULT_MODE: LunaModeId = 'default';
  *   "<userId>": {
  *     "activeMode": "<modeId>",
  *     "profiles": {
- *       "<modeId>": { /* LunaProfile */ }
+ *       "<modeId>": { LunaProfile object }
  *     }
  *   }
  * }
