@@ -41,25 +41,57 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsResult {
       setLoading(true);
       setError(null);
 
-      // TODO: Replace with actual API call
-      // For now, we'll use a mock implementation
-      // In production: const response = await fetch('/api/events', { ... });
-      
-      // Mock implementation - in real app, this would call backend
-      const mockEvents: OrbEvent[] = [];
-      const mockStats: EventStats = {
-        totalEvents: 0,
-        byType: {} as any,
-        byMode: {},
-        byRole: {} as any,
-        mostUsedModes: [],
-        errorRate: 0,
-      };
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (filter?.type) {
+        const types = Array.isArray(filter.type) ? filter.type : [filter.type];
+        params.append('type', types.join(','));
+      }
+      if (filter?.userId !== undefined) {
+        params.append('userId', filter.userId || '');
+      }
+      if (filter?.sessionId) {
+        params.append('sessionId', filter.sessionId);
+      }
+      if (filter?.mode) {
+        params.append('mode', filter.mode);
+      }
+      if (filter?.role) {
+        params.append('role', filter.role);
+      }
+      if (filter?.dateFrom) {
+        params.append('dateFrom', filter.dateFrom);
+      }
+      if (filter?.dateTo) {
+        params.append('dateTo', filter.dateTo);
+      }
+      if (filter?.limit) {
+        params.append('limit', filter.limit.toString());
+      }
 
-      setEvents(mockEvents);
-      setStats(mockStats);
+      // Fetch events and stats in parallel
+      const [eventsResponse, statsResponse] = await Promise.all([
+        fetch(`/api/events?${params.toString()}`),
+        fetch(`/api/events?${params.toString()}&stats=true`),
+      ]);
+
+      if (!eventsResponse.ok) {
+        throw new Error(`Failed to fetch events: ${eventsResponse.statusText}`);
+      }
+      if (!statsResponse.ok) {
+        throw new Error(`Failed to fetch stats: ${statsResponse.statusText}`);
+      }
+
+      const eventsData = await eventsResponse.json();
+      const statsData = await statsResponse.json();
+
+      setEvents(eventsData.events || []);
+      setStats(statsData.stats || null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch events');
+      // Set empty data on error
+      setEvents([]);
+      setStats(null);
     } finally {
       setLoading(false);
     }
