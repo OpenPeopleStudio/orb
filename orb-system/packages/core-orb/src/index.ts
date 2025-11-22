@@ -18,4 +18,8 @@ export * from './validation';
 export * from './supabase';
 export * from './migrateToSupabase';
 export * from './identity';
+export * from './messaging';
+export * from './contacts';
+export * from './finances';
+export * from './events';
 
