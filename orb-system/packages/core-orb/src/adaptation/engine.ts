@@ -13,7 +13,7 @@ import type { OrbEvent, EventFilter, EventStats, OrbEventType } from '../events/
 import { OrbEventType as EventTypeEnum } from '../events/types';
 import { getEventBus } from '../events/bus';
 import type { OrbDevice, OrbMode } from '../identity/types';
-import type { OrbRole } from '../orbRoles';
+import { OrbRole } from '../orbRoles';
 
 /**
  * Pattern - discovered pattern from events
@@ -106,11 +106,14 @@ export class AdaptationEngine {
 
     // Role activity
     const roleActivity = Object.entries(stats.byRole)
-      .map(([role, count]: [string, number | unknown]) => ({
-        role,
-        count: typeof count === 'number' ? count : Number(count) || 0,
-        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : Number(count) || 0) / stats.totalEvents : 0,
-      }))
+      .map(([role, count]: [string, number | unknown]) => {
+        const countNum = typeof count === 'number' ? count : Number(count) || 0;
+        return {
+          role,
+          count: countNum,
+          percentage: stats.totalEvents > 0 ? countNum / stats.totalEvents : 0,
+        };
+      })
       .sort((a, b) => b.count - a.count);
 
     // Failing features (tasks that fail frequently)

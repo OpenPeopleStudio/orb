@@ -18,7 +18,13 @@ export const buildPersonaBrief = (
   role: OrbRole,
   overrides: Partial<PersonaBrief> = {},
 ): PersonaBrief => {
-  const context = createOrbContext(role, overrides);
+  const sessionId = overrides.sessionId || `session-${Date.now()}`;
+  const context = createOrbContext(role, sessionId, {
+    userId: overrides.userId,
+    deviceId: overrides.deviceId,
+    mode: overrides.mode,
+    persona: overrides.persona,
+  });
 
   const principles = overrides.principles ?? [
     'lead with clarity',
