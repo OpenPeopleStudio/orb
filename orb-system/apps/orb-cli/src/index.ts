@@ -22,6 +22,9 @@ import {
   OrbDevice,
   OrbMode,
   getConfig,
+  type AdaptationPattern,
+  type OrbEvent,
+  type ReadinessCheckResult,
 } from '@orb-system/core-orb';
 
 const args = process.argv.slice(2);
@@ -148,27 +151,27 @@ async function handleInsightsCommand(subArgs: string[]) {
   console.log('');
 
   console.log('Most Used Modes:');
-  insights.mostUsedModes.slice(0, 5).forEach((item) => {
+  insights.mostUsedModes.slice(0, 5).forEach((item: { mode: string; count: number; percentage: number }) => {
     console.log(`  ${item.mode}: ${item.count} (${(item.percentage * 100).toFixed(1)}%)`);
   });
   console.log('');
 
   if (insights.failingFeatures.length > 0) {
     console.log('Failing Features:');
-    insights.failingFeatures.slice(0, 5).forEach((item) => {
+    insights.failingFeatures.slice(0, 5).forEach((item: { feature: string; errorRate: number; errorCount: number }) => {
       console.log(`  ${item.feature}: ${(item.errorRate * 100).toFixed(1)}% error rate (${item.errorCount} errors)`);
     });
     console.log('');
   }
 
   console.log('Device Usage:');
-  insights.deviceUsage.forEach((item) => {
+  insights.deviceUsage.forEach((item: { device: string; count: number; percentage: number }) => {
     console.log(`  ${item.device}: ${item.count} (${(item.percentage * 100).toFixed(1)}%)`);
   });
   console.log('');
 
   console.log('Role Activity:');
-  insights.roleActivity.forEach((item) => {
+  insights.roleActivity.forEach((item: { role: string; count: number; percentage: number }) => {
     console.log(`  ${item.role}: ${item.count} (${(item.percentage * 100).toFixed(1)}%)`);
   });
   console.log('');
@@ -182,7 +185,7 @@ async function handleInsightsCommand(subArgs: string[]) {
 
   if (insights.patterns.length > 0) {
     console.log('Discovered Patterns:');
-    insights.patterns.forEach((pattern) => {
+    insights.patterns.forEach((pattern: AdaptationPattern) => {
       console.log(`  [${pattern.type}] ${pattern.description} (confidence: ${(pattern.confidence * 100).toFixed(1)}%)`);
     });
     console.log('');
@@ -191,7 +194,7 @@ async function handleInsightsCommand(subArgs: string[]) {
   const recommendations = await engine.getRecommendations(filter);
   if (recommendations.length > 0) {
     console.log('💡 Recommendations:');
-    recommendations.forEach((rec) => {
+    recommendations.forEach((rec: string) => {
       console.log(`  • ${rec}`);
     });
     console.log('');
@@ -210,7 +213,7 @@ async function handleEventsCommand(subArgs: string[]) {
   console.log(`Found ${events.length} events`);
   console.log('');
 
-  events.forEach((event) => {
+  events.forEach((event: OrbEvent) => {
     const time = new Date(event.timestamp).toLocaleString();
     console.log(`[${time}] ${event.type}`);
     if (event.mode) console.log(`  Mode: ${event.mode}`);
@@ -228,7 +231,7 @@ async function handleReadinessCommand(): Promise<void> {
   console.log('');
 
   const report: ReadinessReport = await runSystemReadiness();
-  report.checks.forEach((check) => {
+  report.checks.forEach((check: ReadinessCheckResult) => {
     const statusIcon =
       check.status === 'pass' ? '✓' : check.status === 'warn' ? '⚠️' : '✗';
     console.log(`${statusIcon} ${check.title} (${check.id})`);
