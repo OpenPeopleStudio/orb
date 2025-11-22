@@ -6,6 +6,7 @@
 
 export * from './types';
 export * from './bus';
+export { getEventBus, resetEventBus } from './bus';
 export * from './sinks';
 export * from './initializeSinks';
 
