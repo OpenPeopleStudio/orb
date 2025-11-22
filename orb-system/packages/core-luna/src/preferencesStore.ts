@@ -1,7 +1,8 @@
 import type { LunaModeId, LunaProfile } from './types';
 import { createProfileFromPreset } from './presets';
+import { OrbMode } from '@orb-system/core-orb';
 
-const DEFAULT_MODE: LunaModeId = 'default';
+const DEFAULT_MODE: LunaModeId = OrbMode.DEFAULT;
 
 export interface LunaPreferencesStore {
   getProfile(userId: string, modeId: LunaModeId): Promise<LunaProfile | null>;
