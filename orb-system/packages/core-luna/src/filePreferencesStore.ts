@@ -6,12 +6,12 @@
  * File-based persistent storage for Luna profiles using JSON files.
  */
 
-import { readJson, writeJson } from '@orb-system/core-orb';
+import { readJson, writeJson, OrbMode } from '@orb-system/core-orb';
 import type { LunaModeId, LunaProfile } from './types';
 import { createProfileFromPreset } from './presets';
 import type { LunaPreferencesStore } from './preferencesStore';
 
-const DEFAULT_MODE: LunaModeId = 'default';
+const DEFAULT_MODE: LunaModeId = OrbMode.DEFAULT;
 
 /**
  * File storage layout:
@@ -57,7 +57,13 @@ export class FileLunaPreferencesStore implements LunaPreferencesStore {
     }
 
     // Create profile from preset defaults
-    const { preferences, constraints } = createProfileFromPreset(userId, modeId);
+    const { preferences, constraints: constraintStrings } = createProfileFromPreset(userId, modeId);
+    const constraints = constraintStrings.map((c, idx) => ({
+      id: `constraint-${modeId}-${idx}`,
+      type: 'other' as const,
+      active: true,
+      description: c,
+    }));
     const profile: LunaProfile = {
       userId,
       modeId,
