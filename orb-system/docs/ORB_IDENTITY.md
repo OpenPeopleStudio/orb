@@ -105,6 +105,30 @@ const context = createOrbContext(OrbRole.SOL, 'session-123', {
 });
 ```
 
+## Multi-Agent Development System (Forge)
+
+The Orb system uses a **multi-agent development approach** via the **Forge** system for coordinated development:
+
+- **Agent Registry**: `packages/forge/src/agents.ts` - Defines all agents, their scopes, and responsibilities
+- **Orchestrator**: `packages/forge/src/orchestrator.ts` - Routes tasks to appropriate agents
+- **Bootloader**: `docs/prompts/forge-agent-bootloader.md` - Entry point for Ultra agent sessions
+- **Templates**: `docs/prompts/forge-agent-template.md` - Template for agent-specific tasks
+
+### Forge Agents
+
+The Forge system defines agents that map to Orb model roles:
+
+- **`architect`** → Owns repo structure, shared types (`core-orb`), docs, and cross-package integration
+- **`luna`** → Owns `core-luna` (preferences/intent layer)
+- **`te`** → Owns `core-te` (reflection/memory layer)
+- **`mav`** → Owns `core-mav` (actions/tools layer)
+- **`orb_ui`** → Owns `apps/orb-web` (presentation layer)
+- **`infra`** → Owns CI, tests, migrations, infrastructure
+
+**Key Principle**: Each agent has **strict file scopes** that prevent cross-boundary edits. This maintains separation of concerns and prevents accidental architectural violations.
+
+See `packages/forge/src/agents.ts` for the canonical agent registry with rationale.
+
 ## Future Extensions
 
 When extending the system:
@@ -112,4 +136,5 @@ When extending the system:
 - Use `OrbContext` to pass role information
 - Document which role a module belongs to
 - Follow the canonical definitions above
+- When adding new agents, update `packages/forge/src/agents.ts` with rationale
 

@@ -189,16 +189,33 @@
 ### Next Steps
 See `ROADMAP.md` for detailed next steps and prompt files in `docs/prompts/` for building out each module.
 
-<<<<<<< Current (Your changes)
-=======
-- Workspace already contains multiple repos (matches assumptions). No deviations detected yet. Future deviations will be documented here.
+## File-Based Persistence
+
+**Added**: File-backed persistence for Luna and Te stores (2025-01-XX)
+
+- **File Store Utility** (`core-orb/src/fileStore.ts`): Shared JSON read/write helpers with automatic directory creation
+- **Persistence Mode** (`core-orb/src/config.ts`): `PersistenceMode` type ('memory' | 'file') with `getPersistenceMode()` function
+- **Luna File Store** (`core-luna/src/filePreferencesStore.ts`): `FileLunaPreferencesStore` for file-based profile persistence
+- **Te File Store** (`core-te/src/fileReflectionStore.ts`): `FileTeReflectionStore` and `InMemoryTeReflectionStore` for reflection persistence
+- **Store Factories** (`core-orb/src/storeFactories.ts`): `createDefaultLunaStore()` and `createDefaultTeStore()` for mode-aware store creation
+
+**Data Layout**:
+- Luna profiles: `.orb-data/luna/profiles.json` (structure: `{ "<userId>": { "activeMode": "<modeId>", "profiles": { "<modeId>": LunaProfile } } }`)
+- Te reflections: `.orb-data/te/reflections.json` (structure: `{ "sessions": { "<sessionId>": TeReflection[] }, "userIdIndex": { "<userId>": string[] } }`)
+
+**Configuration**:
+- Set `ORB_PERSISTENCE=memory` for in-memory stores (default in test environments)
+- Set `ORB_PERSISTENCE=file` for file-backed stores (default in non-test environments)
+- Set `ORB_DATA_DIR` to customize the base data directory (defaults to `.orb-data` relative to process cwd)
+
+**Upgrade Path**: File stores are designed to be easily upgradeable to database-backed stores (Supabase/Postgres) later. The store interfaces remain the same, only the implementation changes.
 
 ## Migration Log
 
 - `core-sol`: Added `summarizeThread` orchestrator derived from `supabase/functions/summarize-thread/index.ts`. OpenAI call sites moved while leaving the Deno wrapper behind for Supabase functions (still needed for deployment).
-- `core-te`: Ported reflection session aggregation from `forge-node/src/core-engine/routes/reflection.ts`. HTTP/Express wiring remains in Forge Node.
+- `core-te`: Ported reflection session aggregation from `forge-node/src/core-engine/routes/reflection.ts`. HTTP/Express wiring remains in Forge Node. Added file-backed reflection persistence.
 - `core-mav`: Moved Golden Flow orchestration bits from `forge-node/src/core-engine/routes/flows.ts`. Express route handlers/CORS plumbing still live in Forge Node.
-- `core-luna`: Encoded mode definitions from `sol/config/sol_modes.md` as TypeScript data + helpers. Markdown source kept as canonical design reference.
+- `core-luna`: Encoded mode definitions from `sol/config/sol_modes.md` as TypeScript data + helpers. Markdown source kept as canonical design reference. Added file-backed profile persistence.
 
 ## Left Behind / Archives
 
@@ -210,4 +227,4 @@ See `ROADMAP.md` for detailed next steps and prompt files in `docs/prompts/` for
 
 - In-memory Supabase client within `apps/orb-web` is for demos only. Replace with real clients once authentication and migrations are wired.
 - Package `package.json` files declare file-based dependencies but no workspace-level tooling exists yet. Add pnpm/yarn workspaces in a follow-up.
->>>>>>> Incoming (Background Agent changes)
+- File-based stores are upgradeable to database-backed stores but migration utilities are not yet implemented.

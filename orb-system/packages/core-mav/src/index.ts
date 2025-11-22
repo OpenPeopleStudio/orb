@@ -8,4 +8,6 @@ export * from './tasks';
 export * from './orchestrator/flowExecutor';
 export * from './integrations/calendar';
 export * from './integrations/inbox';
+export * from './taskRunner';
+export * from './executors';
 

@@ -43,3 +43,19 @@ export function getPersonaDisplayName(persona: Persona): string {
   return persona;
 }
 
+/**
+ * Luna Mode ID - string identifier for a mode
+ */
+export type LunaModeId = string;
+
+/**
+ * Luna Profile - user preferences and constraints for a specific mode
+ */
+export interface LunaProfile {
+  userId: string;
+  modeId: LunaModeId;
+  preferences: string[]; // Array of preference strings
+  constraints: string[]; // Array of constraint strings
+  updatedAt: string; // ISO timestamp
+}
+

@@ -1,0 +1,397 @@
+<<<<<<< Current (Your changes)
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orb Console</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #05070A;
+      color: #F5F7FA;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #B9E4FF;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      align-items: center;
+    }
+
+    .mode-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-selector label {
+      font-size: 13px;
+      color: rgba(245, 247, 250, 0.6);
+      white-space: nowrap;
+    }
+
+    .input-section input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #0C0F13;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      color: #F5F7FA;
+      font-size: 14px;
+    }
+
+    .input-section input:focus {
+      outline: none;
+      border-color: #B9E4FF;
+    }
+
+    .input-section select {
+      padding: 12px 16px;
+      background: #0C0F13;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      color: #F5F7FA;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .input-section button {
+      padding: 12px 24px;
+      background: #B9E4FF;
+      color: #05070A;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .input-section button:hover {
+      opacity: 0.9;
+    }
+
+    .input-section button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #0C0F13;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .card.luna {
+      border-left: 3px solid #8EA3C7;
+    }
+
+    .card.sol {
+      border-left: 3px solid #00A3FF;
+    }
+
+    .card.mav {
+      border-left: 3px solid #EC742E;
+    }
+
+    .card.te {
+      border-left: 3px solid #00FF9C;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card.luna .card-title { color: #8EA3C7; }
+    .card.sol .card-title { color: #00A3FF; }
+    .card.mav .card-title { color: #EC742E; }
+    .card.te .card-title { color: #00FF9C; }
+
+    .card-content {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .card-content strong {
+      color: #F5F7FA;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 4px 4px 4px 0;
+    }
+
+    .badge.allow { background: rgba(0, 255, 156, 0.2); color: #00FF9C; }
+    .badge.deny { background: rgba(236, 116, 46, 0.2); color: #EC742E; }
+    .badge.confirm { background: rgba(142, 163, 199, 0.2); color: #8EA3C7; }
+    .badge.completed { background: rgba(0, 255, 156, 0.2); color: #00FF9C; }
+    .badge.failed { background: rgba(236, 116, 46, 0.2); color: #EC742E; }
+
+    .score {
+      font-size: 32px;
+      font-weight: 600;
+      margin: 8px 0;
+    }
+
+    .score.high { color: #00FF9C; }
+    .score.medium { color: #8EA3C7; }
+    .score.low { color: #EC742E; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .error {
+      background: rgba(236, 116, 46, 0.1);
+      border: 1px solid rgba(236, 116, 46, 0.3);
+      border-radius: 6px;
+      padding: 12px;
+      color: #EC742E;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Orb Console</h1>
+    </div>
+
+    <div class="input-section">
+      <input type="text" id="promptInput" placeholder="Enter a prompt..." style="flex: 1;">
+      <div class="mode-selector">
+        <label for="modeSelect">Mode:</label>
+        <select id="modeSelect">
+          <option value="default">Default</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="real_estate">Real Estate</option>
+          <option value="builder">Builder</option>
+        </select>
+      </div>
+      <button id="runButton" onclick="runDemoFlow()">Run</button>
+    </div>
+
+    <div id="cardsContainer" class="cards-grid">
+      <div class="card luna">
+        <div class="card-header">
+          <div class="card-title">Luna · Intent</div>
+        </div>
+        <div class="card-content" id="lunaContent">
+          <div style="color: rgba(245, 247, 250, 0.4);">Waiting for input...</div>
+        </div>
+      </div>
+
+      <div class="card sol">
+        <div class="card-header">
+          <div class="card-title">Sol · Engine</div>
+        </div>
+        <div class="card-content" id="solContent">
+          <div style="color: rgba(245, 247, 250, 0.4);">Waiting for input...</div>
+        </div>
+      </div>
+
+      <div class="card mav">
+        <div class="card-header">
+          <div class="card-title">Mav · Actions</div>
+        </div>
+        <div class="card-content" id="mavContent">
+          <div style="color: rgba(245, 247, 250, 0.4);">Waiting for input...</div>
+        </div>
+      </div>
+
+      <div class="card te">
+        <div class="card-header">
+          <div class="card-title">Te · Reflection</div>
+        </div>
+        <div class="card-content" id="teContent">
+          <div style="color: rgba(245, 247, 250, 0.4);">Waiting for input...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="errorContainer"></div>
+  </div>
+
+  <script>
+    window.runDemoFlow = async function() {
+      const promptInput = document.getElementById('promptInput');
+      const modeSelect = document.getElementById('modeSelect');
+      const runButton = document.getElementById('runButton');
+      const errorContainer = document.getElementById('errorContainer');
+      
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        alert('Please enter a prompt');
+        return;
+      }
+
+      runButton.disabled = true;
+      runButton.textContent = 'Running...';
+      errorContainer.innerHTML = '';
+
+      // Show loading
+      document.getElementById('lunaContent').innerHTML = '<div class="loading">Evaluating...</div>';
+      document.getElementById('solContent').innerHTML = '<div class="loading">Generating...</div>';
+      document.getElementById('mavContent').innerHTML = '<div class="loading">Executing...</div>';
+      document.getElementById('teContent').innerHTML = '<div class="loading">Reflecting...</div>';
+
+      try {
+        // For demo purposes, we'll call a server endpoint
+        // In a real setup, this would be bundled and imported
+        const response = await fetch('/api/demo-flow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: 'demo-user',
+            sessionId: `session-${Date.now()}`,
+            prompt: prompt,
+            modeId: modeSelect.value,
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to run demo flow');
+        }
+        
+        const result = await response.json();
+
+        // Render Luna - prominently show mode and decision
+        const modeLabel = result.modeId === 'default' ? 'Default' :
+                         result.modeId === 'restaurant' ? 'Restaurant' :
+                         result.modeId === 'real_estate' ? 'Real Estate' :
+                         result.modeId === 'builder' ? 'Builder' : result.modeId;
+        const decisionColor = result.lunaDecision.type === 'allow' ? '#4CAF50' :
+                             result.lunaDecision.type === 'require_confirmation' ? '#FF9800' :
+                             '#F44336';
+        const lunaHtml = `
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: rgba(245, 247, 250, 0.5); margin-bottom: 4px;">MODE</div>
+            <div style="font-size: 18px; font-weight: 600; color: #B9E4FF;">${modeLabel}</div>
+          </div>
+          <div style="margin-bottom: 16px; padding: 12px; background: rgba(185, 228, 255, 0.1); border-radius: 6px; border-left: 3px solid ${decisionColor};">
+            <div style="font-size: 12px; color: rgba(245, 247, 250, 0.5); margin-bottom: 4px;">DECISION</div>
+            <div style="font-size: 16px; font-weight: 600; color: ${decisionColor};">
+              ${result.lunaDecision.type.toUpperCase()}
+            </div>
+            ${result.lunaDecision.effectiveRisk ? `
+              <div style="margin-top: 8px; font-size: 12px; color: rgba(245, 247, 250, 0.6);">
+                Risk Level: <span style="text-transform: uppercase;">${result.lunaDecision.effectiveRisk}</span>
+              </div>
+            ` : ''}
+          </div>
+          <div style="margin-top: 16px; font-size: 13px;">
+            <div style="font-size: 12px; color: rgba(245, 247, 250, 0.5); margin-bottom: 8px;">REASONS</div>
+            ${result.lunaDecision.reasons.map(r => `<div style="margin-top: 4px; color: rgba(245, 247, 250, 0.7);">• ${r}</div>`).join('')}
+            ${result.lunaDecision.triggeredConstraints.length > 0 ? `
+              <div style="margin-top: 12px; font-size: 12px; color: rgba(255, 152, 0, 0.8);">
+                Triggered Constraints: ${result.lunaDecision.triggeredConstraints.join(', ')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+        document.getElementById('lunaContent').innerHTML = lunaHtml;
+
+        // Render Sol
+        const solHtml = `
+          <div style="white-space: pre-wrap;">${result.solOutput || 'No output'}</div>
+        `;
+        document.getElementById('solContent').innerHTML = solHtml;
+
+        // Render Mav
+        const mavHtml = `
+          <div><strong>Task:</strong> ${result.mavTaskResult?.taskId || 'N/A'}</div>
+          <div style="margin-top: 8px;">
+            <span class="badge ${result.mavTaskResult?.status}">${result.mavTaskResult?.status || 'N/A'}</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 13px;">
+            Actions: ${result.mavTaskResult?.actionsCompleted || 0}/${result.mavTaskResult?.actionsTotal || 0}
+          </div>
+          ${result.mavTaskResult?.output ? `<div style="margin-top: 8px; font-size: 13px; color: rgba(245, 247, 250, 0.5);">${result.mavTaskResult.output}</div>` : ''}
+        `;
+        document.getElementById('mavContent').innerHTML = mavHtml;
+
+        // Render Te
+        const scoreClass = result.teEvaluation?.score >= 70 ? 'high' : result.teEvaluation?.score >= 40 ? 'medium' : 'low';
+        const teHtml = `
+          <div class="score ${scoreClass}">${result.teEvaluation?.score || 0}/100</div>
+          <div style="margin-top: 12px;">
+            ${(result.teEvaluation?.tags || []).map(tag => `<span class="badge">${tag}</span>`).join('')}
+          </div>
+          <div style="margin-top: 12px; font-size: 13px;">
+            <div><strong>Summary:</strong> ${result.teEvaluation?.summary || 'N/A'}</div>
+            ${result.teEvaluation?.recommendations?.length ? `
+              <div style="margin-top: 8px;"><strong>Recommendations:</strong></div>
+              ${result.teEvaluation.recommendations.map(r => `<div style="margin-top: 4px;">• ${r}</div>`).join('')}
+            ` : ''}
+          </div>
+        `;
+        document.getElementById('teContent').innerHTML = teHtml;
+
+      } catch (error) {
+        errorContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        console.error('Error running demo flow:', error);
+      } finally {
+        runButton.disabled = false;
+        runButton.textContent = 'Run';
+      }
+    };
+
+    // Allow Enter key to trigger
+    document.getElementById('promptInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        window.runDemoFlow();
+      }
+    });
+  </script>
+</body>
+</html>
+>>>>>>> Incoming (Background Agent changes)

@@ -4,6 +4,8 @@
  * Loads global configuration from environment variables, config files, etc.
  */
 
+export type PersistenceMode = 'memory' | 'file' | 'database';
+
 export interface OrbConfig {
   // API Keys
   openaiApiKey?: string;
@@ -12,6 +14,10 @@ export interface OrbConfig {
   
   // Database
   databaseUrl?: string;
+  isPersistent?: boolean; // Enable persistent storage (derived from persistenceMode: true for 'file' or 'database', false for 'memory')
+  
+  // Persistence mode
+  persistenceMode?: PersistenceMode;
   
   // Service URLs
   forgeNodeUrl?: string;
@@ -35,15 +41,46 @@ export interface OrbConfig {
  * Load configuration from environment variables
  */
 export function loadConfigFromEnv(): OrbConfig {
+  const databaseUrl = process.env.DATABASE_URL;
+  const nodeEnv = (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development';
+  
+  // Determine persistence mode
+  let persistenceMode: PersistenceMode = 'file';
+  if (process.env.ORB_PERSISTENCE) {
+    const envMode = process.env.ORB_PERSISTENCE as PersistenceMode;
+    if (envMode === 'memory' || envMode === 'file' || envMode === 'database') {
+      persistenceMode = envMode;
+    }
+  } else if (nodeEnv === 'test') {
+    persistenceMode = 'memory';
+  } else if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    // Default to database if Supabase is configured
+    persistenceMode = 'database';
+  } else if (databaseUrl) {
+    // Default to database if DATABASE_URL is set (SQLite)
+    persistenceMode = 'database';
+  }
+  
+  // isPersistent should be true if persistenceMode is 'file' or 'database', false if 'memory'
+  // Allow explicit override via ORB_PERSISTENT env var
+  const explicitPersistent = process.env.ORB_PERSISTENT !== undefined
+    ? process.env.ORB_PERSISTENT !== 'false'
+    : undefined;
+  const isPersistent = explicitPersistent !== undefined
+    ? explicitPersistent
+    : persistenceMode !== 'memory';
+  
   return {
     openaiApiKey: process.env.OPENAI_API_KEY,
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl,
+    isPersistent,
+    persistenceMode,
     forgeNodeUrl: process.env.FORGE_NODE_URL,
     forgeNodePort: process.env.FORGE_NODE_PORT ? parseInt(process.env.FORGE_NODE_PORT, 10) : undefined,
     forgeNodeHost: process.env.FORGE_NODE_HOST,
-    nodeEnv: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
+    nodeEnv,
     deviceId: process.env.DEVICE_ID,
     deviceLabel: process.env.DEVICE_LABEL,
     enableReflection: process.env.ENABLE_REFLECTION !== 'false',
@@ -94,5 +131,23 @@ export function setConfig(config: OrbConfig): void {
  */
 export function resetConfig(): void {
   cachedConfig = null;
+}
+
+/**
+ * Get persistence mode from config
+ * Defaults to 'database' if DATABASE_URL is set, 'file' otherwise, 'memory' in test
+ */
+export function getPersistenceMode(): PersistenceMode {
+  const config = getConfig();
+  if (config.persistenceMode) {
+    return config.persistenceMode;
+  }
+  if (config.nodeEnv === 'test') {
+    return 'memory';
+  }
+  if (config.databaseUrl) {
+    return 'database';
+  }
+  return 'file';
 }
 
