@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "files": [],
   "references": [
-    { "path": "./packages/core-orb" },
+    { "path": "./orb-system/packages/core-orb" },
     { "path": "./packages/core-sol" },
     { "path": "./packages/core-te" },
     { "path": "./packages/core-mav" },
