@@ -7,7 +7,8 @@
  * Collects events from all layers and routes to sinks.
  */
 
-import type { OrbEvent, OrbEventSink, EventFilter, EventStats, OrbEventType, OrbRole } from './types';
+import type { OrbEvent, OrbEventSink, EventFilter, EventStats, OrbRole } from './types';
+import { OrbEventType } from './types';
 
 /**
  * In-memory event store

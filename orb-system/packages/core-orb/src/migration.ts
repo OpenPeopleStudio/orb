@@ -95,7 +95,7 @@ export async function migrateTeFileToSql(): Promise<MigrationResult> {
           // Try to find which session this reflection belongs to
           for (const sid of sessionIds) {
             const sessionReflections = fileData.sessions[sid] || [];
-            if (sessionReflections.some(r => r.id === reflection.id)) {
+            if (sessionReflections.some((r: { id: string }) => r.id === reflection.id)) {
               sessionId = sid;
               break;
             }

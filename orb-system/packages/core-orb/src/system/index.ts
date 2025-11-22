@@ -36,7 +36,7 @@ export async function runSystemReadiness(
       results.push({
         id: 'unknown-check',
         title: 'Unhandled readiness check failure',
-        status: 'fail',
+        status: 'fail' as const,
         details: (error as Error).message,
         durationMs: 0,
       });

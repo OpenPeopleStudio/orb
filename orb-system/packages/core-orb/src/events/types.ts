@@ -7,8 +7,11 @@
  * Phase 6: Learning loop foundation.
  */
 
-import type { OrbRole } from '../orbRoles';
 import type { OrbDevice, OrbMode, OrbPersona } from '../identity';
+import type { OrbRole } from '../orbRoles';
+
+// Re-export OrbRole so it can be imported from events/types
+export type { OrbRole };
 
 /**
  * Event Type - categories of events
