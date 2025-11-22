@@ -83,7 +83,7 @@ export class AdaptationEngine {
     const events = await this.eventBus.query(filter || {});
 
     // Most used modes
-    const mostUsedModes = stats.mostUsedModes.map((item: { mode: string; count: number | unknown }) => ({
+    const mostUsedModes = stats.mostUsedModes.map((item: { mode: string; count: number | unknown; isTrusted?: boolean }) => ({
       mode: item.mode,
       count: typeof item.count === 'number' ? item.count : Number(item.count) || 0,
       percentage: stats.totalEvents > 0 ? (typeof item.count === 'number' ? item.count : Number(item.count) || 0) / stats.totalEvents : 0,
@@ -106,10 +106,10 @@ export class AdaptationEngine {
 
     // Role activity
     const roleActivity = Object.entries(stats.byRole)
-      .map(([role, count]) => ({
+      .map(([role, count]: [string, number | unknown]) => ({
         role,
-        count: typeof count === 'number' ? count : 0,
-        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : 0) / stats.totalEvents : 0,
+        count: typeof count === 'number' ? count : Number(count) || 0,
+        percentage: stats.totalEvents > 0 ? (typeof count === 'number' ? count : Number(count) || 0) / stats.totalEvents : 0,
       }))
       .sort((a, b) => b.count - a.count);
 

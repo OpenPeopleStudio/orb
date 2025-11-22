@@ -6,7 +6,7 @@
  * Evaluates actions against user preferences and constraints.
  */
 
-import { OrbRole, OrbContext, getDb, isPersistenceEnabled } from '@orb-system/core-orb';
+import { OrbRole, type OrbContext, getDb, isPersistenceEnabled } from '@orb-system/core-orb';
 import type { LunaActionDescriptor, LunaDecision, LunaDecisionType, LunaRiskLevel } from './types';
 import { InMemoryLunaPreferencesStore, type LunaPreferencesStore } from './preferencesStore';
 import { SqlLunaPreferencesStore } from './sqlStore';
