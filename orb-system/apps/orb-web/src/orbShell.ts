@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 import { createOrbContext, OrbRole } from "@orb/core-orb";
 import { summarizeThread } from "@orb/core-sol";
 import { buildReflectionSession } from "@orb/core-te";
@@ -96,4 +94,3 @@ async function mockFetch(_input: RequestInfo | URL, _init?: RequestInit): Promis
     headers: { "Content-Type": "application/json" }
   });
 }
->>>>>>> Incoming (Background Agent changes)

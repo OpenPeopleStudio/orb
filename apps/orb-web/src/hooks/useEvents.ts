@@ -68,6 +68,9 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsResult {
       if (filter?.limit) {
         params.append('limit', filter.limit.toString());
       }
+      if (filter?.search) {
+        params.append('search', filter.search);
+      }
 
       // Fetch events and stats in parallel
       const [eventsResponse, statsResponse] = await Promise.all([

@@ -10,12 +10,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-<<<<<<< Current (Your changes)
-    "resolveJsonModule": true
-=======
-    "skipLibCheck": true,
+    "resolveJsonModule": true,
     "lib": ["ES2020", "DOM"]
->>>>>>> Incoming (Background Agent changes)
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

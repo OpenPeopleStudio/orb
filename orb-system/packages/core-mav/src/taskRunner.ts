@@ -94,7 +94,7 @@ export async function runTaskWithDefaults(
     console.log(`[MAV] Executing action ${action.id}: ${action.kind} (${action.toolId || 'n/a'})`);
     const executor =
       candidates.find((candidate) => candidate.canExecute(action)) ?? fallbackExecutor;
-
+      
     if (!executor) {
       const now = new Date().toISOString();
       actions.push({

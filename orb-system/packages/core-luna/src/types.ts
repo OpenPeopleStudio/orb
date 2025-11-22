@@ -5,21 +5,28 @@
  * Date: 2025-11-22
  * Role: OrbRole.LUNA (preferences/intent)
  * 
- * Core types for modes and personas.
+ * Core types for modes and personas. Backed by the identity descriptors
+ * defined in @orb-system/core-orb.
  */
 
-export enum Mode {
-  SOL = 'Sol',
-  MARS = 'Mars',
-  EARTH = 'Earth',
-}
+import {
+  type OrbMode,
+  type OrbPersona,
+  type OrbModeDescriptor,
+  type OrbPersonaProfile,
+  ORB_MODE_DESCRIPTORS,
+  ORB_PERSONA_PROFILES,
+  getModeDisplayName as coreGetModeDisplayName,
+  getPersonaDisplayName as coreGetPersonaDisplayName,
+} from '@orb-system/core-orb';
 
-export enum Persona {
-  PERSONAL = 'Personal',
-  SWL = 'SWL',
-  REAL_ESTATE = 'Real Estate',
-  OPEN_PEOPLE = 'Open People',
-}
+export { OrbMode as Mode, OrbPersona as Persona } from '@orb-system/core-orb';
+
+export type ModeDescriptor = OrbModeDescriptor;
+export type PersonaProfile = OrbPersonaProfile;
+
+export const MODE_DESCRIPTORS: Record<OrbMode, ModeDescriptor> = ORB_MODE_DESCRIPTORS;
+export const PERSONA_PROFILES: Record<OrbPersona, PersonaProfile> = ORB_PERSONA_PROFILES;
 
 export interface PersonaDistribution {
   personal: number;
@@ -28,25 +35,18 @@ export interface PersonaDistribution {
   openPeople: number;
 }
 
-export function getModeDisplayName(mode: Mode): string {
-  switch (mode) {
-    case Mode.SOL:
-      return 'Sol Mode';
-    case Mode.MARS:
-      return 'Mars Mode';
-    case Mode.EARTH:
-      return 'Earth Mode';
-  }
+export function getModeDisplayName(mode: OrbMode): string {
+  return coreGetModeDisplayName(mode);
 }
 
-export function getPersonaDisplayName(persona: Persona): string {
-  return persona;
+export function getPersonaDisplayName(persona: OrbPersona): string {
+  return coreGetPersonaDisplayName(persona);
 }
 
 /**
  * Luna Mode ID - string identifier for a mode
  */
-export type LunaModeId = string;
+export type LunaModeId = OrbMode;
 
 /**
  * Luna Profile - user preferences and constraints for a specific mode

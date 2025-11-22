@@ -2,75 +2,63 @@
 
 ## Context
 
-You are the **Luna Agent** working on the intent/preferences layer of the Orb system.
+This is a task ticket for the **Luna agent** (`id: 'luna'`). Use the bootloader (`docs/prompts/forge-agent-bootloader.md`) with:
+- `{AGENT_ID}` = `luna`
+- `{TASK_BLOCK}` = contents of this file
 
-**Orb Model Recap**:
+## Orb Model Recap
+
+- **Luna** → intent (what the user decides they want it to be)
 - **Sol** → engine (what the model runs on)
 - **Te** → reflection (what the model reflects on)
 - **Mav** → execution (what the model accomplishes)
-- **Luna** → intent (what the user decides they want it to be) ← **You are here**
-- **Orb** → shell (UI/app that the human touches)
+- **Orb** → shell (UI/app the human touches)
 
-## Your Scope
+Luna owns: modes, preferences, constraints, and policy evaluation.
 
-You MAY edit files matching:
-- `packages/core-luna/**`
+## Goal
 
-You MUST NOT edit:
-- `node_modules/`, `dist/`, `sol/`, `luna/` scripts
-- Other core packages (`core-te`, `core-mav`, `core-sol`)
-- Root configs or docs (that's `architect`'s job)
+Implement file-backed persistence for Luna preferences/profiles so decisions persist across sessions.
 
-## Task: Implement File-Backed Luna Preferences Store
+## Files to Touch
 
-### Goal
+- `packages/core-luna/src/**` (your scope)
+- May need to read `packages/core-orb/src/fileStore.ts` for shared utilities
+- May need to read `packages/core-orb/src/demoFlow.ts` to see how stores are used
 
-Create a file-backed persistence layer for Luna preferences so that mode selections and user preferences survive across sessions.
+## Non-Touch Zones
 
-### Current State
+- `node_modules/`, `dist/`, `.orb-data/` (runtime data, not code)
+- `packages/core-te/**`, `packages/core-mav/**` (other agents' domains)
+- `docs/**` (Architect's domain, unless explicitly asked)
 
-- Luna has in-memory stores for testing
-- Luna has database-backed stores (SQLite, Supabase)
-- Luna needs a simple file-backed store for development and lightweight deployments
+## Tasks
 
-### Files to Touch
+1. **Review existing store interfaces**
+   - Read `packages/core-luna/src/preferencesStore.ts` to understand the interface
+   - Check if `FileLunaPreferencesStore` already exists
 
-1. **`packages/core-luna/src/filePreferencesStore.ts`** (may already exist)
-   - Implement `FileLunaPreferencesStore` class
-   - Use `@orb-system/core-orb`'s `fileStore` utilities (`readJson`, `writeJson`)
-   - Store profiles in `.orb-data/luna/profiles/{userId}/{modeId}.json`
-   - Store active modes in `.orb-data/luna/active-modes/{userId}.json`
+2. **Implement file-backed store** (if missing)
+   - Use `packages/core-orb/src/fileStore.ts` utilities (`readJson`, `writeJson`)
+   - Store profiles in `.orb-data/luna/profiles/<userId>/<modeId>.json`
+   - Implement all methods from `LunaPreferencesStore` interface
 
-2. **`packages/core-luna/src/preferencesStore.ts`** (interface)
-   - Ensure `LunaPreferencesStore` interface is properly defined
-   - Document the contract
+3. **Update store factories** (if needed)
+   - Check `packages/core-orb/src/storeFactories.ts`
+   - Ensure `createDefaultLunaStore()` can return file-backed store when persistence mode is 'file'
 
-3. **`packages/core-luna/src/index.ts`**
-   - Export `FileLunaPreferencesStore` if not already exported
+4. **Test integration**
+   - Run `pnpm test --filter packages/core-luna` to ensure tests pass
+   - Verify file store works in `demoFlow` if possible
 
-### Implementation Notes
+## Expected Outcome
 
-- Use `getDataDirectory()` from `@orb-system/core-orb` for base path
-- Keep JSON structure simple: `{ userId, modeId, preferences: string[], constraints: string[], updatedAt: string }`
-- Handle file read errors gracefully (return null, create defaults)
-- Ensure `getOrCreateProfile` creates a profile from presets if missing
+- File-backed Luna store exists and implements the interface
+- Store factories use file store by default when persistence mode is 'file'
+- Tests pass
+- In-memory store still works for tests
 
-### Testing
+## Follow-ups
 
-- Keep `InMemoryLunaPreferencesStore` intact for tests
-- File store should work alongside in-memory and database stores
-- No breaking changes to existing APIs
-
-### Follow-ups
-
-After completing:
-- Note if `architect` needs to update `demoFlow.ts` to use file store by default
-- Note if `infra` needs to add `.orb-data/` to `.gitignore` (if not already)
-
-## Output Format
-
-When done, provide:
-- Summary of changes per file
-- Any commands run (lint, test, build)
-- Follow-ups for other agents
-
+- If `demoFlow.ts` needs changes, leave TODO for Architect
+- If store factory changes are needed in `core-orb`, coordinate with Architect

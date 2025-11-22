@@ -4,17 +4,17 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-<<<<<<< Current (Your changes)
-    "resolveJsonModule": true
-=======
-    "skipLibCheck": true,
-    "lib": ["ES2020", "DOM"]
->>>>>>> Incoming (Background Agent changes)
+    "resolveJsonModule": true,
+    "lib": ["ES2020", "DOM"],
+    "baseUrl": ".",
+    "paths": {
+      "@orb-system/core-orb": ["../packages/core-orb/src"],
+      "@orb-system/core-luna": ["../packages/core-luna/src"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

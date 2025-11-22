@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 /**
  * Action Evaluator
  * 
@@ -92,4 +90,3 @@ export async function evaluateActionWithDefaults(
     },
   };
 }
->>>>>>> Incoming (Background Agent changes)

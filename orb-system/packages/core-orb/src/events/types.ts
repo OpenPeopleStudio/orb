@@ -104,6 +104,7 @@ export interface EventFilter {
   dateFrom?: string; // ISO timestamp
   dateTo?: string; // ISO timestamp
   limit?: number;
+  search?: string; // Search in payload content (case-insensitive)
 }
 
 /**

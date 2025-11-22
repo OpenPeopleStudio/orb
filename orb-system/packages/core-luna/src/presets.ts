@@ -4,6 +4,7 @@
  * Default profile presets for Luna modes.
  */
 
+import { Mode, MODE_DESCRIPTORS } from './types';
 import type { LunaModeId } from './types';
 
 export interface ProfilePreset {
@@ -15,26 +16,15 @@ export interface ProfilePreset {
  * Create a profile from preset defaults
  */
 export function createProfileFromPreset(userId: string, modeId: LunaModeId): ProfilePreset {
-  // Default presets based on mode
-  const presets: Record<string, ProfilePreset> = {
-    default: {
-      preferences: ['efficiency', 'clarity', 'user-friendly'],
-      constraints: ['no-destructive-actions', 'require-confirmation'],
-    },
-    restaurant: {
-      preferences: ['food-quality', 'service-speed', 'atmosphere'],
-      constraints: ['no-allergen-mixing', 'hygiene-standards'],
-    },
-    real_estate: {
-      preferences: ['location', 'price-range', 'amenities'],
-      constraints: ['legal-compliance', 'disclosure-requirements'],
-    },
-    builder: {
-      preferences: ['code-quality', 'performance', 'maintainability'],
-      constraints: ['type-safety', 'test-coverage'],
-    },
-  };
+  const descriptor = MODE_DESCRIPTORS[modeId] ?? MODE_DESCRIPTORS[Mode.DEFAULT];
 
-  return presets[modeId] || presets.default;
+  return {
+    preferences: descriptor.defaultPreferences.length
+      ? descriptor.defaultPreferences
+      : ['balanced-ui'],
+    constraints: descriptor.defaultConstraints.length
+      ? descriptor.defaultConstraints
+      : ['require-confirmation'],
+  };
 }
 

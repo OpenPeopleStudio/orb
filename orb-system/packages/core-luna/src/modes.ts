@@ -8,8 +8,15 @@
  * Handles mode management and transitions.
  */
 
-import { OrbRole, OrbContext } from '@orb-system/core-orb';
-import { Mode } from './types';
+import { OrbRole, OrbContext, OrbMode } from '@orb-system/core-orb';
+import {
+  Mode,
+  ModeDescriptor,
+  Persona,
+  PersonaProfile,
+  MODE_DESCRIPTORS,
+  PERSONA_PROFILES,
+} from './types';
 
 export interface ModeResponse {
   mode: string;
@@ -27,7 +34,7 @@ export interface SetModeRequest {
  */
 export class ModeService {
   private static instance: ModeService;
-  private currentMode: Mode = Mode.EARTH;
+  private currentMode: Mode = OrbMode.EARTH;
   
   private constructor() {}
   
@@ -57,7 +64,7 @@ export class ModeService {
   async setMode(
     ctx: OrbContext,
     mode: Mode,
-    persona: string
+    persona: Persona | string
   ): Promise<void> {
     if (ctx.role !== OrbRole.LUNA) {
       console.warn(`setMode called with role ${ctx.role}, expected LUNA`);
@@ -66,13 +73,14 @@ export class ModeService {
     const request: SetModeRequest = {
       device_id: ctx.deviceId || '',
       device_label: '', // Would come from config
-      persona: persona,
-      mode: mode,
+      persona: typeof persona === 'string' ? persona : (persona as string),
+      mode,
     };
     
     // This would call the backend API
     this.currentMode = mode;
-    console.log(`[LUNA] Setting mode to ${mode} for persona ${persona}`);
+    const descriptor = this.getModeDescriptor(mode);
+    console.log(`[LUNA] Setting mode to ${mode} (${descriptor.intent}) for persona ${persona}`);
   }
   
   /**
@@ -80,6 +88,21 @@ export class ModeService {
    */
   getCurrentMode(): Mode {
     return this.currentMode;
+  }
+
+  /**
+   * Get descriptor metadata for a given mode (defaults to current)
+   */
+  getModeDescriptor(mode?: Mode): ModeDescriptor {
+    const target = mode ?? this.currentMode;
+    return MODE_DESCRIPTORS[target] ?? MODE_DESCRIPTORS[OrbMode.DEFAULT];
+  }
+
+  /**
+   * Get persona profile metadata
+   */
+  getPersonaProfile(persona: Persona): PersonaProfile {
+    return PERSONA_PROFILES[persona];
   }
 }
 

@@ -2,75 +2,63 @@
 
 ## Context
 
-You are the **Te Agent** working on the reflection/memory layer of the Orb system.
+This is a task ticket for the **Te agent** (`id: 'te'`). Use the bootloader (`docs/prompts/forge-agent-bootloader.md`) with:
+- `{AGENT_ID}` = `te`
+- `{TASK_BLOCK}` = contents of this file
 
-**Orb Model Recap**:
-- **Sol** → engine (what the model runs on)
-- **Te** → reflection (what the model reflects on) ← **You are here**
-- **Mav** → execution (what the model accomplishes)
+## Orb Model Recap
+
+- **Te** → reflection (what the model reflects on)
 - **Luna** → intent (what the user decides they want it to be)
-- **Orb** → shell (UI/app that the human touches)
+- **Sol** → engine (what the model runs on)
+- **Mav** → execution (what the model accomplishes)
+- **Orb** → shell (UI/app the human touches)
 
-## Your Scope
+Te owns: journaling, evaluation, summarization, and reflection storage.
 
-You MAY edit files matching:
-- `packages/core-te/**`
+## Goal
 
-You MUST NOT edit:
-- `node_modules/`, `dist/`, `sol/`, `luna/` scripts
-- Other core packages (`core-luna`, `core-mav`, `core-sol`)
-- Root configs or docs (that's `architect`'s job)
+Implement file-backed persistence for Te reflections so evaluations and memories persist across sessions.
 
-## Task: Implement File-Backed Te Reflection Store
+## Files to Touch
 
-### Goal
+- `packages/core-te/src/**` (your scope)
+- May need to read `packages/core-orb/src/fileStore.ts` for shared utilities
+- May need to read `packages/core-orb/src/demoFlow.ts` to see how stores are used
 
-Create a file-backed persistence layer for Te reflections so that evaluations and reflections survive across sessions.
+## Non-Touch Zones
 
-### Current State
+- `node_modules/`, `dist/`, `.orb-data/` (runtime data, not code)
+- `packages/core-luna/**`, `packages/core-mav/**` (other agents' domains)
+- `docs/**` (Architect's domain, unless explicitly asked)
 
-- Te has in-memory stores for testing
-- Te has database-backed stores (SQLite, Supabase)
-- Te needs a simple file-backed store for development and lightweight deployments
+## Tasks
 
-### Files to Touch
+1. **Review existing store interfaces**
+   - Read `packages/core-te/src/fileReflectionStore.ts` or similar to understand the interface
+   - Check if `FileTeReflectionStore` already exists
 
-1. **`packages/core-te/src/fileReflectionStore.ts`** (may already exist)
-   - Implement `FileTeReflectionStore` class
-   - Use `@orb-system/core-orb`'s `fileStore` utilities (`readJson`, `writeJson`)
-   - Store reflections in `.orb-data/te/reflections/{userId}/{sessionId}.json` (or single file per user)
-   - Support both per-session and per-user retrieval
+2. **Implement file-backed store** (if missing)
+   - Use `packages/core-orb/src/fileStore.ts` utilities (`readJson`, `writeJson`)
+   - Store reflections in `.orb-data/te/reflections/<userId>/<sessionId>.json` or similar structure
+   - Implement all methods from `TeReflectionStore` interface
 
-2. **`packages/core-te/src/reflectionHelpers.ts`** (types)
-   - Ensure `TeReflection` type is properly defined
-   - Document the contract
+3. **Update store factories** (if needed)
+   - Check `packages/core-orb/src/storeFactories.ts`
+   - Ensure `createDefaultTeStore()` can return file-backed store when persistence mode is 'file'
 
-3. **`packages/core-te/src/index.ts`**
-   - Export `FileTeReflectionStore` if not already exported
+4. **Test integration**
+   - Run `pnpm test --filter packages/core-te` to ensure tests pass
+   - Verify file store works in `demoFlow` if possible
 
-### Implementation Notes
+## Expected Outcome
 
-- Use `getDataDirectory()` from `@orb-system/core-orb` for base path
-- Keep JSON structure simple: `{ id, input, output, tags: string[], notes?, createdAt: string }`
-- Handle file read errors gracefully (return empty array, create defaults)
-- Support `getReflections(userId, limit?)` and `getReflectionsBySession(sessionId, limit?)`
+- File-backed Te store exists and implements the interface
+- Store factories use file store by default when persistence mode is 'file'
+- Tests pass
+- In-memory store still works for tests
 
-### Testing
+## Follow-ups
 
-- Keep `InMemoryTeReflectionStore` intact for tests
-- File store should work alongside in-memory and database stores
-- No breaking changes to existing APIs
-
-### Follow-ups
-
-After completing:
-- Note if `architect` needs to update `demoFlow.ts` to use file store by default
-- Note if `infra` needs to add `.orb-data/` to `.gitignore` (if not already)
-
-## Output Format
-
-When done, provide:
-- Summary of changes per file
-- Any commands run (lint, test, build)
-- Follow-ups for other agents
-
+- If `demoFlow.ts` needs changes, leave TODO for Architect
+- If store factory changes are needed in `core-orb`, coordinate with Architect

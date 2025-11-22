@@ -455,7 +455,26 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
               </div>
               
               {showFilters && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-4">
+                  {/* Search Input - Full Width */}
+                  <div>
+                    <label className="mb-1 block text-xs text-text-muted">Search Events</label>
+                    <input
+                      type="text"
+                      value={eventFilter.search || ''}
+                      onChange={(e) => {
+                        setEventFilter({
+                          ...eventFilter,
+                          search: e.target.value || undefined,
+                        });
+                      }}
+                      placeholder="Search in payload, metadata, or event type..."
+                      className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-accent-orb"
+                    />
+                  </div>
+                  
+                  {/* Other Filters - Grid Layout */}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {/* Event Type Filter */}
                   <div>
                     <label className="mb-1 block text-xs text-text-muted">Event Type</label>
@@ -576,6 +595,7 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
                       }}
                       className="w-full rounded-lg border border-white/10 bg-bg-surface/70 px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-orb"
                     />
+                  </div>
                   </div>
                 </div>
               )}

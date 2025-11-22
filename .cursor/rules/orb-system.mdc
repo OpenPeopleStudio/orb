@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+# in Cursor → Project Commands
+
+dev-orb-web:
+  command: pnpm dev --filter apps/orb-web
+  description: Run Orb web app locally
+
+lint:
+  command: pnpm lint
+  description: Lint the monorepo
+
+typecheck:
+  command: pnpm typecheck
+  description: Run TypeScript type checks
+
+test:
+  command: pnpm test
+  description: Run tests for all packages
+
+test-core:
+  command: pnpm test --filter "packages/core-*"
+  description: Run tests for core packages only
+
+build:
+  command: pnpm build
+  description: Build all packages and apps
+
+check:
+  command: pnpm lint && pnpm typecheck && pnpm test
+  description: Quick health check before committing

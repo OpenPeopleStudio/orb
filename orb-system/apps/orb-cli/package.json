@@ -1,0 +1,33 @@
+{
+  "name": "@orb-system/orb-cli",
+  "version": "0.1.0",
+  "description": "CLI for multi-device Orb orchestration",
+  "type": "module",
+  "bin": {
+    "orb": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "orb",
+    "cli",
+    "orchestration"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@orb-system/core-orb": "workspace:*",
+    "@orb-system/core-luna": "workspace:*",
+    "@orb-system/core-mav": "workspace:*",
+    "@orb-system/core-te": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

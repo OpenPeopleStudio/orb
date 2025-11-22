@@ -227,7 +227,7 @@ This roadmap defines the evolution of `orb-system` from a TypeScript monorepo in
 
 **Goal**: Orb's domain & flows match what you already learned from SomaOS, but implemented in TypeScript & web-first.
 
-**Status**: ⚪ Not Started
+**Status**: 🟡 In Progress
 
 ### Tasks
 
@@ -262,6 +262,11 @@ This roadmap defines the evolution of `orb-system` from a TypeScript monorepo in
 **Agents**: `architect` + maybe short-lived `infra` helper to keep types clean
 
 **See Also**: `docs/SOMAOS_PORTING_PLAN.md` for detailed mapping
+
+**Progress**:
+- Identity & mode descriptors now live in `packages/core-orb/src/identity/types.ts` and are consumed by Luna services.
+- `packages/core-orb/src/system/` exposes `runSystemReadiness()` plus Supabase/Git/Node/database checks.
+- Domain barrels exist under `packages/core-orb/src/domains/**` (contacts, messaging, finances, playground) for layer alignment.
 
 ---
 

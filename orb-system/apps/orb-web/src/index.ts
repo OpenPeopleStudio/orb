@@ -4,7 +4,7 @@
  * Demonstrates Sol/Te/Mav/Luna views and basic interactions.
  */
 
-import { OrbRole, createOrbContext } from '@orb-system/core-orb';
+import { OrbRole, createOrbContext, runSystemReadiness } from '@orb-system/core-orb';
 import { modelClient } from '@orb-system/core-sol';
 import { reflectionService, memoryService } from '@orb-system/core-te';
 import { taskService, calendarService } from '@orb-system/core-mav';
@@ -53,6 +53,14 @@ async function main() {
   await modeService.setMode(lunaCtx, Mode.SOL, 'Personal');
   const currentMode = modeService.getCurrentMode();
   console.log(`   Current mode: ${currentMode}\n`);
+
+  console.log('5. SYSTEM READINESS');
+  const readiness = await runSystemReadiness();
+  readiness.checks.forEach((check) => {
+    console.log(`   - ${check.title}: ${check.status.toUpperCase()} (${check.details})`);
+  });
+  console.log(`   Overall: ${readiness.overallStatus.toUpperCase()}`);
+  console.log(`   Generated at: ${readiness.generatedAt}\n`);
   
   console.log('=== Orb System Demo Complete ===');
 }

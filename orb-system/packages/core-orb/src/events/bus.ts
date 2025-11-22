@@ -61,6 +61,21 @@ class InMemoryEventStore {
       results = results.filter((e) => new Date(e.timestamp) <= to);
     }
 
+    if (filter.search) {
+      const searchLower = filter.search.toLowerCase();
+      results = results.filter((e) => {
+        // Search in payload JSON string representation
+        const payloadStr = JSON.stringify(e.payload).toLowerCase();
+        // Also search in metadata if present
+        const metadataStr = e.metadata ? JSON.stringify(e.metadata).toLowerCase() : '';
+        // Search in event type and other string fields
+        const typeStr = e.type.toLowerCase();
+        return payloadStr.includes(searchLower) || 
+               metadataStr.includes(searchLower) || 
+               typeStr.includes(searchLower);
+      });
+    }
+
     // Sort by timestamp descending
     results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 

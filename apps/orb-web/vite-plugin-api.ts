@@ -90,6 +90,9 @@ export function apiPlugin(): Plugin {
               if (url.searchParams.get('limit')) {
                 filter.limit = parseInt(url.searchParams.get('limit') || '100', 10);
               }
+              if (url.searchParams.get('search')) {
+                filter.search = url.searchParams.get('search')!;
+              }
 
               // Check if requesting stats
               if (url.searchParams.get('stats') === 'true') {
@@ -120,6 +123,7 @@ export function apiPlugin(): Plugin {
                   if (filter.type && typeof filter.type === 'string' && filter.type.includes(',')) {
                     filter.type = filter.type.split(',').map((t: string) => t.trim());
                   }
+                  // Search parameter is already a string, no parsing needed
                   
                   if (stats) {
                     const eventStats = await getEventStats(filter);

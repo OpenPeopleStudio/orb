@@ -21,6 +21,8 @@ This document maps SomaOS concepts, architecture, and flows to `orb-system` impl
 
 ### Target Implementation
 - **Package**: `packages/core-orb/src/identity/**`
+  - `identity/types.ts` now exports `ORB_DEVICE_PROFILES`, `ORB_PERSONA_PROFILES`, `ORB_MODE_DESCRIPTORS`, and enriched `OrbUser`
+- **Luna integration**: `packages/core-luna/src/types.ts`, `modes.ts`, and `presets.ts` read from the descriptors
 - **Types to define**:
   - `OrbUser` - User identity, profiles, accounts
   - `OrbDevice` - Devices: Sol, Luna, Mars, Earth
@@ -31,8 +33,8 @@ This document maps SomaOS concepts, architecture, and flows to `orb-system` impl
 ### Implementation Notes
 - Base types on existing Supabase schema that SomaOS used
 - Don't hardwire Supabase yet - keep types abstract
-- Create single `core-orb` source of truth for devices, personas, modes
-- Map SomaOS mode definitions to Luna mode service
+- Create single `core-orb` source of truth for devices, personas, modes (descriptors now live in `identity/types.ts`)
+- Map SomaOS mode definitions to Luna mode service (already wired via descriptor exports)
 
 ### Agent Assignment
 - **Primary**: `architect` (defines types, structure)
@@ -166,15 +168,13 @@ This document maps SomaOS concepts, architecture, and flows to `orb-system` impl
 
 ### Target Implementation
 - **Package**: `packages/core-orb/src/system/**`
+  - `system/checks.ts`: `checkNodeVersion`, `checkGitStatus`, `checkSupabaseConfig`, `checkDatabaseConfig`, `checkPersistenceMode`
+  - `system/index.ts`: `runSystemReadiness()` helper returning aggregated reports
 - **Functions**: System readiness checks, verification utilities
 
 ### Implementation Notes
-- Port verification checklists to Orb functions:
-  - `checkSupabaseConnection()`
-  - `checkGitConfig()`
-  - `checkNodeVersion()`
-  - `checkDatabaseSchema()`
-- Create "ready state" API returning structured report for UI
+- Port verification checklists to Orb functions (supplied above)
+- `runSystemReadiness()` produces a structured `ReadinessReport` for UI/agents
 - Integrate with orb-web for system status display
 
 ### Agent Assignment

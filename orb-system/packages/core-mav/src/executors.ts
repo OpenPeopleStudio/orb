@@ -169,7 +169,7 @@ export class MockMavExecutor implements MavExecutor {
       console.warn(`MockMavExecutor.executeAction called with role ${ctx.role}, expected MAV`);
     }
 
-    const timestamp = new Date().toISOString();
+      const timestamp = new Date().toISOString();
     return {
       taskId: task.id,
       actionId: action.id,
@@ -301,7 +301,7 @@ export class FileSystemMavExecutor implements MavExecutor {
         executorId: this.id,
         context: {
           userId: ctx.userId ?? null,
-          sessionId: ctx.sessionId,
+        sessionId: ctx.sessionId,
           role: ctx.role,
         },
         params: { ...action.params, filePath },
@@ -368,7 +368,7 @@ export class FileSystemMavExecutor implements MavExecutor {
           rejected: true,
         },
       };
-    }
+      }
 
     // Write file
     try {

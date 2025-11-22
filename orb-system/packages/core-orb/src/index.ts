@@ -22,4 +22,7 @@ export * from './messaging';
 export * from './contacts';
 export * from './finances';
 export * from './events';
+export * from './adaptation';
+export * from './system';
+export * from './domains';
 

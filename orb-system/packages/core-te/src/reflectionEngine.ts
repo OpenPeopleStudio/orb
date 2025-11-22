@@ -8,19 +8,15 @@
  * Generates reflections and insights based on patterns and data analysis.
  */
 
-import { OrbRole, OrbContext, getConfig } from '@orb-system/core-orb';
-
-export interface Transaction {
-  id: string;
-  amount: number;
-  merchant: string;
-  category: string | null;
-  timestamp: string;
-  source: string;
-}
+import {
+  OrbRole,
+  OrbContext,
+  getConfig,
+  type Transaction as FinancialTransaction,
+} from '@orb-system/core-orb';
 
 export interface ReflectionContext {
-  transactions: Transaction[];
+  transactions: FinancialTransaction[];
   recentDays: number;
   previousPeriod?: {
     transactions: Transaction[];
@@ -55,7 +51,7 @@ const ALIGNMENT_KEYWORDS: Record<string, string[]> = {
  */
 export async function generateReflection(
   ctx: OrbContext,
-  transactions: Transaction[],
+  transactions: FinancialTransaction[],
   userEmotion?: { emotion: string; intensity: number; valence: number }
 ): Promise<ReflectionResult> {
   if (ctx.role !== OrbRole.TE) {
@@ -101,7 +97,7 @@ export async function generateReflection(
   };
 }
 
-function buildReflectionContext(transactions: Transaction[]): ReflectionContext {
+function buildReflectionContext(transactions: FinancialTransaction[]): ReflectionContext {
   const merchantPatterns: Record<string, number> = {};
   const categoryBreakdown: Record<string, number> = {};
   let lateNight = 0;
@@ -109,26 +105,31 @@ function buildReflectionContext(transactions: Transaction[]): ReflectionContext 
   let weekday = 0;
   
   transactions.forEach(tx => {
+    const amount = getTransactionAmount(tx);
+    const merchant = (tx.merchant || tx.payee || 'unknown merchant').toLowerCase();
+    const categoryName = getCategoryName(tx);
+    const timestamp = getTimestamp(tx);
+
     // Merchant patterns
-    merchantPatterns[tx.merchant] = (merchantPatterns[tx.merchant] || 0) + 1;
+    merchantPatterns[merchant] = (merchantPatterns[merchant] || 0) + 1;
     
     // Category breakdown
-    const cat = tx.category || 'uncategorized';
-    categoryBreakdown[cat] = (categoryBreakdown[cat] || 0) + tx.amount;
+    const cat = categoryName || 'uncategorized';
+    categoryBreakdown[cat] = (categoryBreakdown[cat] || 0) + amount;
     
     // Time patterns
-    const date = new Date(tx.timestamp);
+    const date = new Date(timestamp);
     const hour = date.getHours();
     const dayOfWeek = date.getDay();
     
     if (hour >= 22 || hour < 6) {
-      lateNight += tx.amount;
+      lateNight += amount;
     }
     
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      weekend += tx.amount;
+      weekend += amount;
     } else {
-      weekday += tx.amount;
+      weekday += amount;
     }
   });
   
@@ -165,7 +166,7 @@ function selectTone(
   }
   
   // Emotional spending patterns = gentle
-  const totalSpend = context.transactions.reduce((sum, t) => sum + t.amount, 0);
+  const totalSpend = context.transactions.reduce((sum, t) => sum + getTransactionAmount(t), 0);
   if (context.timePatterns.lateNight > totalSpend * 0.2) {
     return 'gentle';
   }
@@ -180,7 +181,7 @@ async function generateAISummary(
   deviceId: string,
   tone: 'celebratory' | 'compassionate' | 'gentle' | 'encouraging' | 'analytical' = 'analytical'
 ): Promise<string> {
-  const totalSpend = context.transactions.reduce((sum, tx) => sum + tx.amount, 0);
+  const totalSpend = context.transactions.reduce((sum, tx) => sum + getTransactionAmount(tx), 0);
   const avgTransaction = totalSpend / context.transactions.length;
   
   const topMerchants = Object.entries(context.merchantPatterns)
@@ -259,7 +260,7 @@ Match the ${tone} tone. Be observational and helpful, never judgmental.`;
 }
 
 function generateFallbackSummary(context: ReflectionContext): string {
-  const totalSpend = context.transactions.reduce((sum, tx) => sum + tx.amount, 0);
+  const totalSpend = context.transactions.reduce((sum, tx) => sum + getTransactionAmount(tx), 0);
   const topMerchant = Object.entries(context.merchantPatterns)
     .sort(([, a], [, b]) => b - a)[0]?.[0] || 'various merchants';
   
@@ -275,8 +276,8 @@ function calculateAlignmentScore(context: ReflectionContext): number | null {
   if (totalTransactions === 0) return null;
   
   context.transactions.forEach(tx => {
-    const merchantLower = tx.merchant.toLowerCase();
-    const categoryLower = (tx.category || '').toLowerCase();
+    const merchantLower = (tx.merchant || tx.payee || '').toLowerCase();
+    const categoryLower = (getCategoryName(tx) || '').toLowerCase();
     
     for (const keywords of Object.values(ALIGNMENT_KEYWORDS)) {
       if (keywords.some(kw => merchantLower.includes(kw) || categoryLower.includes(kw))) {
@@ -291,7 +292,7 @@ function calculateAlignmentScore(context: ReflectionContext): number | null {
 
 function generateTags(context: ReflectionContext): string[] {
   const tags: string[] = [];
-  const totalSpend = context.transactions.reduce((sum, tx) => sum + tx.amount, 0);
+  const totalSpend = context.transactions.reduce((sum, tx) => sum + getTransactionAmount(tx), 0);
   
   // Spending level tags
   if (totalSpend > 1000) tags.push('high_spend');
@@ -317,5 +318,18 @@ function generateTags(context: ReflectionContext): string[] {
   if (alignmentScore && alignmentScore < 0.2) tags.push('misaligned');
   
   return tags;
+}
+
+function getTransactionAmount(tx: FinancialTransaction): number {
+  // Domain amounts are stored in cents
+  return tx.amount / 100;
+}
+
+function getCategoryName(tx: FinancialTransaction): string | undefined {
+  return tx.category?.name || tx.categoryId || undefined;
+}
+
+function getTimestamp(tx: FinancialTransaction): string {
+  return tx.postedAt || tx.clearedAt || tx.date || tx.createdAt || new Date().toISOString();
 }
 
