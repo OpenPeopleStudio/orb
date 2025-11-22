@@ -8,7 +8,9 @@ export interface OrbPalette {
   accent: string;
 }
 
-export interface OrbContext {
+// Note: OrbContext is exported from './orbRoles' (runtime context with userId/sessionId)
+// This is a display/UI context for role presentation
+export interface OrbRoleContext {
   role: OrbRole;
   title: string;
   description: string;
@@ -60,10 +62,10 @@ export const getOrbPalette = (role: OrbRole): OrbPalette => ({
   accent: ROLE_ACCENTS[role],
 });
 
-export const createOrbContext = (
+export const createOrbRoleContext = (
   role: OrbRole,
-  overrides: Partial<Omit<OrbContext, 'role'>> = {},
-): OrbContext => {
+  overrides: Partial<Omit<OrbRoleContext, 'role'>> = {},
+): OrbRoleContext => {
   const palette = getOrbPalette(role);
   return {
     role,
@@ -76,15 +78,15 @@ export const createOrbContext = (
   };
 };
 
-export const ORB_CONTEXTS: Record<OrbRole, OrbContext> = roleOrder.reduce(
+export const ORB_ROLE_CONTEXTS: Record<OrbRole, OrbRoleContext> = roleOrder.reduce(
   (acc, role) => {
-    acc[role] = createOrbContext(role);
+    acc[role] = createOrbRoleContext(role);
     return acc;
   },
-  {} as Record<OrbRole, OrbContext>,
+  {} as Record<OrbRole, OrbRoleContext>,
 );
 
-export const getContextSummary = (context: OrbContext): string => {
+export const getRoleContextSummary = (context: OrbRoleContext): string => {
   const capabilityList = context.capabilities.join(', ');
   return `${context.title}: ${context.description} (capabilities: ${capabilityList})`;
 };
