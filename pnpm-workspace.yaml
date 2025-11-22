@@ -1,3 +1,5 @@
 packages:
   - "packages/*"
+  - "orb-system/packages/*"
   - "apps/*"
+  - "orb-system/apps/*"
