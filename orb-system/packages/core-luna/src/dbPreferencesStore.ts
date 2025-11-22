@@ -23,11 +23,11 @@ export class DbLunaPreferencesStore implements LunaPreferencesStore {
     this.store = new SqlLunaPreferencesStore(db || getDb());
   }
 
-  async getProfile(userId: string, modeId: string): Promise<import('./types').LunaProfile | null> {
+  async getProfile(userId: string, modeId: import('./types').LunaModeId): Promise<import('./types').LunaProfile | null> {
     return this.store.getProfile(userId, modeId);
   }
 
-  async getOrCreateProfile(userId: string, modeId: string): Promise<import('./types').LunaProfile> {
+  async getOrCreateProfile(userId: string, modeId: import('./types').LunaModeId): Promise<import('./types').LunaProfile> {
     return this.store.getOrCreateProfile(userId, modeId);
   }
 
@@ -35,15 +35,15 @@ export class DbLunaPreferencesStore implements LunaPreferencesStore {
     return this.store.saveProfile(profile);
   }
 
-  async getActiveMode(userId: string): Promise<string> {
+  async getActiveMode(userId: string): Promise<import('./types').LunaModeId> {
     return this.store.getActiveMode(userId);
   }
 
-  async setActiveMode(userId: string, modeId: string): Promise<void> {
+  async setActiveMode(userId: string, modeId: import('./types').LunaModeId): Promise<void> {
     return this.store.setActiveMode(userId, modeId);
   }
 
-  async listModes(userId: string): Promise<string[]> {
+  async listModes(userId: string): Promise<import('./types').LunaModeId[]> {
     return this.store.listModes(userId);
   }
 }

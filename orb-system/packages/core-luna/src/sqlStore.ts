@@ -4,11 +4,12 @@
  * Persistent storage for Luna profiles using SQLite.
  */
 
+import { OrbMode } from '@orb-system/core-orb';
 import type { LunaModeId, LunaProfile } from './types';
 import { createProfileFromPreset } from './presets';
 import type { LunaPreferencesStore } from './preferencesStore';
 
-const DEFAULT_MODE: LunaModeId = 'default';
+const DEFAULT_MODE: LunaModeId = OrbMode.DEFAULT;
 
 export class SqlLunaPreferencesStore implements LunaPreferencesStore {
   private db: any;
@@ -51,7 +52,13 @@ export class SqlLunaPreferencesStore implements LunaPreferencesStore {
     }
 
     // Create profile from preset defaults
-    const { preferences, constraints } = createProfileFromPreset(userId, modeId);
+    const { preferences, constraints: constraintStrings } = createProfileFromPreset(userId, modeId);
+    const constraints = constraintStrings.map((c, idx) => ({
+      id: `constraint-${modeId}-${idx}`,
+      type: 'other' as const,
+      active: true,
+      description: c,
+    }));
     const profile: LunaProfile = {
       userId,
       modeId,
