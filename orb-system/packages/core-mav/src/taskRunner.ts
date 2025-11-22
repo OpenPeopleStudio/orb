@@ -1,15 +1,18 @@
-<<<<<<< Current (Your changes)
-=======
 /**
  * Task Runner
  * 
  * Role: OrbRole.MAV (actions/tools)
  * 
- * Runs tasks and returns results.
+ * Runs tasks and returns structured results for downstream agents.
  */
 
-import { OrbRole, OrbContext } from '@orb-system/core-orb';
-import { getDefaultExecutors, type MavExecutor } from './executors';
+import { OrbRole, type OrbContext } from '@orb-system/core-orb';
+
+import { MockMavExecutor, type MavExecutor } from './executors';
+
+export type MavExecutionContext = OrbContext & {
+  role: OrbRole.MAV;
+};
 
 export interface MavTaskAction {
   id: string;
@@ -26,80 +29,153 @@ export interface MavTask {
   metadata?: Record<string, unknown>;
 }
 
-export interface MavTaskResult {
+export type MavActionStatus = 'success' | 'failed';
+
+export interface MavActionResult {
   taskId: string;
-  status: 'completed' | 'failed' | 'partial';
-  actionsCompleted: number;
-  actionsTotal: number;
-  output?: string;
+  actionId: string;
+  kind: string;
+  toolId?: string;
+  status: MavActionStatus;
+  startedAt: string;
+  finishedAt: string;
+  output?: Record<string, unknown>;
   error?: string;
   metadata?: Record<string, unknown>;
 }
 
+export interface MavTaskResult {
+  taskId: string;
+  label: string;
+  status: 'completed' | 'failed' | 'partial';
+  actionsCompleted: number;
+  actionsTotal: number;
+  actions: MavActionResult[];
+  startedAt: string;
+  finishedAt: string;
+  error?: string;
+  metadata?: Record<string, unknown>;
+}
+
+function ensureMavContext(ctx: OrbContext): MavExecutionContext {
+  if (ctx.role !== OrbRole.MAV) {
+    console.warn(`runTaskWithDefaults called with role ${ctx.role}, expected MAV`);
+  }
+  return ctx as MavExecutionContext;
+}
+
+function resolveExecutors(executors?: MavExecutor[]): MavExecutor[] {
+  if (executors && executors.length > 0) {
+    return executors;
+  }
+  return [new MockMavExecutor()];
+}
+
 /**
- * Run a task with default executors
+ * Run a task using the provided executors (or a default mock fallback).
  */
 export async function runTaskWithDefaults(
   ctx: OrbContext,
   task: MavTask,
-  executors?: MavExecutor[]
+  executors?: MavExecutor[],
 ): Promise<MavTaskResult> {
-  if (ctx.role !== OrbRole.MAV) {
-    console.warn(`runTaskWithDefaults called with role ${ctx.role}, expected MAV`);
-  }
+  const mavCtx = ensureMavContext(ctx);
+  const taskStartedAt = new Date().toISOString();
+  const actions: MavActionResult[] = [];
+  let successCount = 0;
+  let failureCount = 0;
 
   console.log(`[MAV] Running task: ${task.label}`);
 
-  const availableExecutors = executors || getDefaultExecutors();
-  let actionsCompleted = 0;
-  let hasError = false;
-  const outputs: string[] = [];
+  const candidates = resolveExecutors(executors);
+  const fallbackExecutor = candidates[candidates.length - 1];
 
   for (const action of task.actions) {
+    console.log(`[MAV] Executing action ${action.id}: ${action.kind} (${action.toolId || 'n/a'})`);
+    const executor =
+      candidates.find((candidate) => candidate.canExecute(action)) ?? fallbackExecutor;
+
+    if (!executor) {
+      const now = new Date().toISOString();
+      actions.push({
+        taskId: task.id,
+        actionId: action.id,
+        kind: action.kind,
+        toolId: action.toolId,
+        status: 'failed',
+        startedAt: now,
+        finishedAt: now,
+        error: `No executor available for action kind=${action.kind}`,
+      });
+      failureCount += 1;
+      continue;
+    }
+
     try {
-      console.log(`[MAV] Executing action: ${action.kind} (${action.toolId || 'no tool'})`);
-      
-      // Find an executor that can handle this action
-      const executor = availableExecutors.find(e => e.canExecute(action));
-      
-      if (executor) {
-        // Use real executor
-        const result = await executor.execute(ctx, action);
-        if (result.success) {
-          actionsCompleted++;
-          outputs.push(result.output || `Action ${action.id} completed`);
-        } else {
-          hasError = true;
-          outputs.push(`Action ${action.id} failed: ${result.error}`);
-        }
+      const result = await executor.executeAction(mavCtx, task, action);
+      actions.push(result);
+      if (result.status === 'success') {
+        successCount += 1;
       } else {
-        // Fallback to mock for unknown actions
-        console.log(`[MAV] No executor found for ${action.kind}, using mock`);
-        await new Promise(resolve => setTimeout(resolve, 10));
-        actionsCompleted++;
-        outputs.push(`Action ${action.id} completed (mock)`);
+        failureCount += 1;
       }
     } catch (error) {
-      hasError = true;
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`[MAV] Action ${action.id} failed:`, error);
-      outputs.push(`Action ${action.id} failed: ${errorMessage}`);
+      failureCount += 1;
+      const now = new Date().toISOString();
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[MAV] Action ${action.id} failed: ${message}`);
+      actions.push({
+        taskId: task.id,
+        actionId: action.id,
+        kind: action.kind,
+        toolId: action.toolId,
+        status: 'failed',
+        startedAt: now,
+        finishedAt: now,
+        error: message,
+      });
     }
   }
 
-  const status: MavTaskResult['status'] = hasError
-    ? actionsCompleted === 0
-      ? 'failed'
-      : 'partial'
-    : 'completed';
+  const finishedAt = new Date().toISOString();
+  const status: MavTaskResult['status'] =
+    failureCount === 0 ? 'completed' : successCount > 0 ? 'partial' : 'failed';
+
+  // Aggregate filesTouched from all actions
+  const filesTouched: string[] = [];
+  const errors: string[] = [];
+  for (const action of actions) {
+    if (action.metadata?.filesTouched) {
+      const touched = Array.isArray(action.metadata.filesTouched)
+        ? action.metadata.filesTouched
+        : [action.metadata.filesTouched];
+      filesTouched.push(...touched.map(String));
+    }
+    if (action.error) {
+      errors.push(action.error);
+    }
+  }
+
+  // Build summary
+  const summary = `${successCount}/${task.actions.length} actions completed. ${
+    filesTouched.length > 0 ? `Files touched: ${filesTouched.length}` : ''
+  }`.trim();
 
   return {
     taskId: task.id,
+    label: task.label,
     status,
-    actionsCompleted,
+    actionsCompleted: successCount,
     actionsTotal: task.actions.length,
-    output: outputs.join('\n'),
-    metadata: task.metadata,
+    actions,
+    startedAt: taskStartedAt,
+    finishedAt,
+    error: failureCount > 0 ? 'One or more actions failed' : undefined,
+    metadata: {
+      ...task.metadata,
+      filesTouched: filesTouched.length > 0 ? filesTouched : undefined,
+      errors: errors.length > 0 ? errors : undefined,
+      summary,
+    },
   };
 }
->>>>>>> Incoming (Background Agent changes)

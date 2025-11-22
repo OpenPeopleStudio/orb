@@ -7,6 +7,7 @@
  */
 
 import { OrbRole, type OrbContext } from '@orb-system/core-orb';
+
 import { MockMavExecutor, type MavExecutor } from './executors';
 
 export type MavExecutionContext = OrbContext & {
@@ -140,6 +141,26 @@ export async function runTaskWithDefaults(
   const status: MavTaskResult['status'] =
     failureCount === 0 ? 'completed' : successCount > 0 ? 'partial' : 'failed';
 
+  // Aggregate filesTouched from all actions
+  const filesTouched: string[] = [];
+  const errors: string[] = [];
+  for (const action of actions) {
+    if (action.metadata?.filesTouched) {
+      const touched = Array.isArray(action.metadata.filesTouched)
+        ? action.metadata.filesTouched
+        : [action.metadata.filesTouched];
+      filesTouched.push(...touched.map(String));
+    }
+    if (action.error) {
+      errors.push(action.error);
+    }
+  }
+
+  // Build summary
+  const summary = `${successCount}/${task.actions.length} actions completed. ${
+    filesTouched.length > 0 ? `Files touched: ${filesTouched.length}` : ''
+  }`.trim();
+
   return {
     taskId: task.id,
     label: task.label,
@@ -150,7 +171,12 @@ export async function runTaskWithDefaults(
     startedAt: taskStartedAt,
     finishedAt,
     error: failureCount > 0 ? 'One or more actions failed' : undefined,
-    metadata: task.metadata,
+    metadata: {
+      ...task.metadata,
+      filesTouched: filesTouched.length > 0 ? filesTouched : undefined,
+      errors: errors.length > 0 ? errors : undefined,
+      summary,
+    },
   };
 }
 
