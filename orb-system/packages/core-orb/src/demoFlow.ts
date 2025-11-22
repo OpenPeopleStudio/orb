@@ -15,6 +15,9 @@ import {
   type TeEvaluation,
 } from '@orb-system/core-te';
 import { createDefaultLunaStore, createDefaultTeStore } from './storeFactories';
+import { getEventBus } from './events/bus';
+import { OrbEventType, type OrbEvent } from './events/types';
+import { OrbMode } from './identity';
 
 /**
  * NOTE: core-sol is currently a stub. Replace this with the real orchestrator once available.
@@ -22,6 +25,66 @@ import { createDefaultLunaStore, createDefaultTeStore } from './storeFactories';
 const mockSolGenerate = async (prompt: string): Promise<string> => {
   return `Mock Sol Response: ${prompt.toUpperCase()} :: synthesized`;
 };
+
+/**
+ * Helper to map mode string to OrbMode enum
+ */
+function mapModeToOrbMode(mode: string): OrbMode {
+  switch (mode) {
+    case 'restaurant':
+      return OrbMode.RESTAURANT;
+    case 'real_estate':
+      return OrbMode.REAL_ESTATE;
+    case 'builder':
+      return OrbMode.BUILDER;
+    case 'explorer':
+      return OrbMode.EXPLORER;
+    case 'forge':
+      return OrbMode.FORGE;
+    default:
+      return OrbMode.DEFAULT;
+  }
+}
+
+/**
+ * Helper to generate a unique ID
+ */
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/**
+ * Helper to create and emit an event
+ */
+async function emitEvent(
+  type: OrbEventType,
+  context: OrbContext,
+  mode: string,
+  payload: Record<string, unknown>,
+  metadata?: Record<string, unknown>
+): Promise<void> {
+  try {
+    const eventBus = getEventBus();
+    const event: OrbEvent = {
+      id: generateId(),
+      type,
+      timestamp: new Date().toISOString(),
+      userId: context.userId,
+      sessionId: context.sessionId,
+      deviceId: context.deviceId as any,
+      mode: mapModeToOrbMode(mode),
+      persona: context.persona as any,
+      role: context.role,
+      payload,
+      metadata,
+    };
+    
+    await eventBus.emit(event);
+  } catch (error) {
+    // Don't fail the flow if event emission fails
+    console.error('[demoFlow] Failed to emit event:', error);
+  }
+}
 
 export interface DemoFlowInput {
   userId: string;
@@ -56,6 +119,24 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
   const lunaStore = createDefaultLunaStore();
   await lunaStore.setActiveMode(input.userId, mode);
 
+  // Emit: User input event
+  await emitEvent(
+    OrbEventType.USER_INPUT,
+    context,
+    mode,
+    { prompt: input.prompt },
+    { flow: 'demo' }
+  );
+
+  // Emit: Mode change event
+  await emitEvent(
+    OrbEventType.MODE_CHANGE,
+    context,
+    mode,
+    { mode, previousMode: 'default' },
+    { userId: input.userId }
+  );
+
   const actionDescriptor: LunaActionDescriptor = {
     id: 'mock_tool_action',
     role: OrbRole.MAV,
@@ -69,7 +150,35 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
     actionDescriptor,
   );
 
-  if (lunaDecision.type === 'deny') {
+  // Emit: Luna decision event
+  await emitEvent(
+    OrbEventType.LUNA_DECISION,
+    { ...context, role: OrbRole.LUNA },
+    mode,
+    {
+      decisionType: lunaDecision.type,
+      reasoning: lunaDecision.reasoning,
+      riskLevel: lunaDecision.riskLevel,
+      actionId: actionDescriptor.id,
+    },
+    { action: actionDescriptor }
+  );
+
+  // Emit: Specific Luna decision type
+  if (lunaDecision.type === 'allow') {
+    await emitEvent(
+      OrbEventType.LUNA_ALLOW,
+      { ...context, role: OrbRole.LUNA },
+      mode,
+      { actionId: actionDescriptor.id, reasoning: lunaDecision.reasoning }
+    );
+  } else if (lunaDecision.type === 'deny') {
+    await emitEvent(
+      OrbEventType.LUNA_DENY,
+      { ...context, role: OrbRole.LUNA },
+      mode,
+      { actionId: actionDescriptor.id, reasoning: lunaDecision.reasoning }
+    );
     return { context, mode, lunaDecision };
   }
 
@@ -90,10 +199,67 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
     metadata: { prompt: input.prompt, mode },
   };
 
+  // Emit: Task run event
+  await emitEvent(
+    OrbEventType.TASK_RUN,
+    { ...context, role: OrbRole.MAV },
+    mode,
+    {
+      taskId: mavTask.id,
+      taskLabel: mavTask.label,
+      actionCount: mavTask.actions.length,
+    },
+    { task: mavTask }
+  );
+
   const mavTaskResult = await runTaskWithDefaults(
     { ...context, role: OrbRole.MAV },
     mavTask,
   );
+
+  // Emit: Task completion event
+  if (mavTaskResult.status === 'completed') {
+    await emitEvent(
+      OrbEventType.TASK_COMPLETE,
+      { ...context, role: OrbRole.MAV },
+      mode,
+      {
+        taskId: mavTaskResult.taskId,
+        actionsCompleted: mavTaskResult.actionsCompleted,
+        actionsTotal: mavTaskResult.actionsTotal,
+        filesTouched: mavTaskResult.metadata?.filesTouched,
+      },
+      { result: mavTaskResult }
+    );
+  } else {
+    await emitEvent(
+      OrbEventType.TASK_FAIL,
+      { ...context, role: OrbRole.MAV },
+      mode,
+      {
+        taskId: mavTaskResult.taskId,
+        status: mavTaskResult.status,
+        error: mavTaskResult.error,
+        actionsCompleted: mavTaskResult.actionsCompleted,
+        actionsTotal: mavTaskResult.actionsTotal,
+      },
+      { result: mavTaskResult }
+    );
+  }
+
+  // Emit: Mav action events for file operations
+  if (mavTaskResult.metadata?.filesTouched) {
+    const filesTouched = mavTaskResult.metadata.filesTouched as string[];
+    for (const file of filesTouched) {
+      await emitEvent(
+        OrbEventType.FILE_WRITE,
+        { ...context, role: OrbRole.MAV },
+        mode,
+        { filePath: file, taskId: mavTaskResult.taskId },
+        { executor: 'file_system' }
+      );
+    }
+  }
 
   const reflection = createTeReflection(
     { ...context, role: OrbRole.TE },
@@ -109,6 +275,19 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
   const teStore = createDefaultTeStore();
   await teStore.saveReflection(reflection, input.userId, input.sessionId);
 
+  // Emit: Te reflection event
+  await emitEvent(
+    OrbEventType.TE_REFLECTION,
+    { ...context, role: OrbRole.TE },
+    mode,
+    {
+      reflectionId: reflection.id,
+      tags: reflection.tags,
+      notes: reflection.notes,
+    },
+    { reflection }
+  );
+
   const teEvaluation = await evaluateRun(
     { ...context, role: OrbRole.TE },
     {
@@ -116,6 +295,21 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
       output: reflection.output,
       metadata: mavTaskResult.metadata,
     },
+  );
+
+  // Emit: Te evaluation event
+  await emitEvent(
+    OrbEventType.TE_EVALUATION,
+    { ...context, role: OrbRole.TE },
+    mode,
+    {
+      score: teEvaluation.score,
+      tags: teEvaluation.tags,
+      recommendations: teEvaluation.recommendations,
+      summary: teEvaluation.summary,
+      reflectionId: reflection.id,
+    },
+    { evaluation: teEvaluation }
   );
 
   return {
