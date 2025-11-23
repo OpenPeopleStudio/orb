@@ -1,5 +1,5 @@
 {
-  "installCommand": "corepack enable && pnpm install",
+  "installCommand": "pnpm install --no-frozen-lockfile --no-optional",
   "buildCommand": "pnpm --filter @orb-system/orb-web... build",
   "outputDirectory": "apps/orb-web/dist",
   "framework": null
