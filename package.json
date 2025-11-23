@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "pnpm --filter apps/orb-web dev",
     "build": "pnpm run build:deps && pnpm run build:core && pnpm run build:apps",

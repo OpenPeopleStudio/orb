@@ -1,5 +1,6 @@
 {
   "buildCommand": "pnpm --filter @orb-system/orb-web... build",
-  "outputDirectory": "apps/orb-web/dist"
+  "outputDirectory": "apps/orb-web/dist",
+  "framework": null
 }
 
