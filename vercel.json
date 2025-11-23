@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm install && pnpm --filter @orb-system/orb-web... build",
+  "installCommand": "pnpm install",
+  "outputDirectory": "apps/orb-web/dist"
+}
+
