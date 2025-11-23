@@ -8,7 +8,15 @@
  * Handles mode management and transitions.
  */
 
-import { OrbRole, OrbContext, OrbMode } from '@orb-system/core-orb';
+import {
+  OrbRole,
+  OrbContext,
+  OrbMode,
+  type ModeTransitionContext,
+  type ModeTransitionResult,
+  validateModeTransition,
+  getConstraintStorage,
+} from '@orb-system/core-orb';
 import {
   Mode,
   ModeDescriptor,
@@ -59,15 +67,66 @@ export class ModeService {
   }
   
   /**
-   * Set mode for a device
+   * Validate mode transition before setting
+   */
+  async validateTransition(
+    ctx: OrbContext,
+    toMode: Mode,
+    persona: Persona | string,
+    reason?: string
+  ): Promise<ModeTransitionResult> {
+    const transitionContext: ModeTransitionContext = {
+      fromMode: this.currentMode,
+      toMode,
+      reason,
+      userId: ctx.userId,
+      deviceId: ctx.deviceId as any,
+      persona: (typeof persona === 'string' ? persona : persona) as any,
+      triggeredBy: 'user',
+    };
+    
+    const storage = getConstraintStorage();
+    const constraintSets = ctx.userId
+      ? await storage.getActiveConstraintSets(ctx.userId, {
+          mode: this.currentMode,
+          persona: (typeof persona === 'string' ? persona : persona) as string,
+          device: ctx.deviceId,
+        })
+      : [];
+    
+    return validateModeTransition(transitionContext, constraintSets);
+  }
+  
+  /**
+   * Set mode for a device (with validation)
    */
   async setMode(
     ctx: OrbContext,
     mode: Mode,
-    persona: Persona | string
+    persona: Persona | string,
+    options?: {
+      skipValidation?: boolean;
+      reason?: string;
+    }
   ): Promise<void> {
     if (ctx.role !== OrbRole.LUNA) {
       console.warn(`setMode called with role ${ctx.role}, expected LUNA`);
+    }
+    
+    // Validate transition unless explicitly skipped
+    if (!options?.skipValidation) {
+      const validation = await this.validateTransition(ctx, mode, persona, options?.reason);
+      
+      if (!validation.allowed) {
+        console.error(`[LUNA] Mode transition denied: ${validation.reasons.join(', ')}`);
+        throw new Error(`Mode transition denied: ${validation.reasons[0]}`);
+      }
+      
+      if (validation.decision === 'require_confirmation') {
+        console.warn(`[LUNA] Mode transition requires confirmation: ${validation.reasons.join(', ')}`);
+        // In a real implementation, this would trigger a confirmation dialog
+        // For now, we'll proceed but log the warning
+      }
     }
     
     const request: SetModeRequest = {

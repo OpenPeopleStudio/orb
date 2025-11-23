@@ -30,27 +30,27 @@ async function main() {
     [],
     [],
     [],
-    { rawValue: 'Personal' },
-    { rawValue: 'Sol' }
+    { rawValue: Persona.PERSONAL },
+    { rawValue: Mode.SOL }
   );
   console.log(`   Insight: ${insight}\n`);
   
   console.log('2. TE (Reflection/Memory)');
   console.log('   Adding reflection...');
   await reflectionService.addReflection(teCtx, 'This is a test reflection', {
-    persona: 'Personal',
-    mode: 'Sol',
+    persona: Persona.PERSONAL,
+    mode: Mode.SOL,
   });
   console.log('   Reflection added\n');
   
   console.log('3. MAV (Actions/Tools)');
   console.log('   Adding task...');
-  await taskService.addTask(mavCtx, 'Complete Orb system migration', 'Personal');
+  await taskService.addTask(mavCtx, 'Complete Orb system migration', Persona.PERSONAL);
   console.log('   Task added\n');
   
   console.log('4. LUNA (Preferences/Intent)');
   console.log('   Setting mode...');
-  await modeService.setMode(lunaCtx, Mode.SOL, 'Personal');
+  await modeService.setMode(lunaCtx, Mode.SOL, Persona.PERSONAL);
   const currentMode = modeService.getCurrentMode();
   console.log(`   Current mode: ${currentMode}\n`);
 

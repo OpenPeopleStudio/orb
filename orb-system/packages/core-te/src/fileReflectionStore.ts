@@ -14,7 +14,7 @@ import type { TeReflectionStore } from './sqlStore';
  * File storage layout:
  * .orb-data/te/reflections.json
  * {
- *   "<sessionId>": [ /* TeReflection[], most recent last */ ]
+ *   "<sessionId>": [ TeReflection[], most recent last ]
  * }
  * 
  * Note: We store by sessionId, but also maintain a userId index for queries

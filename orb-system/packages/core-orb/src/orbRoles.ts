@@ -85,3 +85,51 @@ export function getRoleDescription(role: OrbRole): string {
   return descriptions[role];
 }
 
+/**
+ * Orb Palette - color scheme for UI
+ */
+export interface OrbPalette {
+  accent: string;
+  surface: string;
+  background: string;
+  textPrimary: string;
+  textMuted: string;
+}
+
+/**
+ * Get color palette for a role
+ */
+export function getOrbPalette(role: OrbRole): OrbPalette {
+  const palettes: Record<OrbRole, OrbPalette> = {
+    [OrbRole.SOL]: {
+      accent: '#00d4ff', // Cyan
+      surface: '#001a26',
+      background: '#000d14',
+      textPrimary: '#ffffff',
+      textMuted: '#7f9faf',
+    },
+    [OrbRole.TE]: {
+      accent: '#00ff88', // Green
+      surface: '#001a0d',
+      background: '#000d0a',
+      textPrimary: '#ffffff',
+      textMuted: '#7faf9f',
+    },
+    [OrbRole.MAV]: {
+      accent: '#ffaa00', // Yellow/Orange
+      surface: '#261a00',
+      background: '#140d00',
+      textPrimary: '#ffffff',
+      textMuted: '#af9f7f',
+    },
+    [OrbRole.LUNA]: {
+      accent: '#ff00ff', // Magenta
+      surface: '#26001a',
+      background: '#14000d',
+      textPrimary: '#ffffff',
+      textMuted: '#af7f9f',
+    },
+  };
+  return palettes[role];
+}
+

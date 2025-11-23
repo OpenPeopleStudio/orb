@@ -27,4 +27,6 @@ export * from './adaptation';
 export { getAdaptationEngine, resetAdaptationEngine } from './adaptation/engine';
 export * from './system';
 export * from './domains';
+export * from './constraints';
+export * from './persona';
 

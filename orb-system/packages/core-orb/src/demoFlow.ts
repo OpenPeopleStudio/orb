@@ -150,53 +150,7 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
     { userId: input.userId }
   );
 
-  const actionDescriptor: LunaActionDescriptor = {
-    id: 'mock_tool_action',
-    role: OrbRole.MAV,
-    kind: 'tool_call',
-    toolId: 'mock_tool',
-    metadata: { prompt: input.prompt },
-  };
-
-  const lunaDecision = await evaluateActionWithDefaults(
-    { ...context, role: OrbRole.LUNA },
-    actionDescriptor,
-  );
-
-  // Emit: Luna decision event
-  await emitEvent(
-    OrbEventType.LUNA_DECISION,
-    { ...context, role: OrbRole.LUNA },
-    mode,
-    {
-      decisionType: lunaDecision.type,
-      reasoning: lunaDecision.reasoning,
-      riskLevel: lunaDecision.riskLevel,
-      actionId: actionDescriptor.id,
-    },
-    { action: actionDescriptor }
-  );
-
-  // Emit: Specific Luna decision type
-  if (lunaDecision.type === 'allow') {
-    await emitEvent(
-      OrbEventType.LUNA_ALLOW,
-      { ...context, role: OrbRole.LUNA },
-      mode,
-      { actionId: actionDescriptor.id, reasoning: lunaDecision.reasoning }
-    );
-  } else if (lunaDecision.type === 'deny') {
-    await emitEvent(
-      OrbEventType.LUNA_DENY,
-      { ...context, role: OrbRole.LUNA },
-      mode,
-      { actionId: actionDescriptor.id, reasoning: lunaDecision.reasoning }
-    );
-    return { context, mode, lunaDecision };
-  }
-
-  const solOutput = await mockSolGenerate(input.prompt);
-
+  // Create Mav task first to evaluate it with Luna
   const mavTask: MavTask = {
     id: `task-${Date.now()}`,
     label: 'Tool Execution',
@@ -205,11 +159,123 @@ export const runDemoFlow = async (input: DemoFlowInput): Promise<DemoFlowResult>
         id: 'action-1',
         kind: 'file_write',
         toolId: 'file_log',
-        params: { input: input.prompt, output: solOutput, mode },
+        params: { input: input.prompt, mode },
         metadata: { executor: 'file', prompt: input.prompt },
       },
     ],
     metadata: { prompt: input.prompt, mode },
+  };
+
+  // Evaluate each Mav action with Luna before execution
+  const lunaContext = { ...context, role: OrbRole.LUNA, mode, deviceId: context.deviceId };
+  const actionEvaluations: Array<{ action: MavTask['actions'][0]; decision: LunaDecision }> = [];
+
+  for (const action of mavTask.actions) {
+    // Map Mav action to Luna action descriptor
+    const actionDescriptor: LunaActionDescriptor = {
+      id: action.id,
+      role: OrbRole.MAV,
+      kind: action.kind === 'file_write' ? 'file_write' : 
+            action.kind === 'file_read' ? 'file_read' : 
+            action.kind === 'tool_call' ? 'tool_call' : 'other',
+      toolId: action.toolId,
+      estimatedRisk: action.kind === 'file_write' ? 'medium' : 'low', // Assess risk based on action type
+      description: `Execute ${action.kind} action: ${action.toolId || 'unknown tool'}`,
+    };
+
+    const lunaDecision = await evaluateActionWithDefaults(
+      lunaContext,
+      actionDescriptor,
+    );
+
+    actionEvaluations.push({ action, decision: lunaDecision });
+
+    // Emit: Luna decision event for each action
+    await emitEvent(
+      OrbEventType.LUNA_DECISION,
+      lunaContext,
+      mode,
+      {
+        decisionType: lunaDecision.type,
+        reasons: lunaDecision.reasons,
+        effectiveRisk: lunaDecision.effectiveRisk,
+        triggeredConstraints: lunaDecision.triggeredConstraints,
+        actionId: actionDescriptor.id,
+      },
+      { action: actionDescriptor, decision: lunaDecision }
+    );
+
+    // Emit: Specific Luna decision type
+    if (lunaDecision.type === 'allow') {
+      await emitEvent(
+        OrbEventType.LUNA_ALLOW,
+        lunaContext,
+        mode,
+        { 
+          actionId: actionDescriptor.id, 
+          reasons: lunaDecision.reasons,
+          effectiveRisk: lunaDecision.effectiveRisk,
+        }
+      );
+    } else if (lunaDecision.type === 'deny') {
+      await emitEvent(
+        OrbEventType.LUNA_DENY,
+        lunaContext,
+        mode,
+        { 
+          actionId: actionDescriptor.id, 
+          reasons: lunaDecision.reasons,
+          triggeredConstraints: lunaDecision.triggeredConstraints,
+        }
+      );
+      // If any action is denied, stop the flow
+      return { 
+        context, 
+        mode, 
+        lunaDecision: {
+          type: 'deny',
+          reasons: [`Action ${actionDescriptor.id} was denied: ${lunaDecision.reasons.join(', ')}`],
+          triggeredConstraints: lunaDecision.triggeredConstraints,
+          effectiveRisk: lunaDecision.effectiveRisk,
+          context: lunaDecision.context,
+        },
+      };
+    } else if (lunaDecision.type === 'require_confirmation') {
+      await emitEvent(
+        OrbEventType.LUNA_REQUIRE_CONFIRMATION,
+        lunaContext,
+        mode,
+        { 
+          actionId: actionDescriptor.id, 
+          reasons: lunaDecision.reasons,
+          effectiveRisk: lunaDecision.effectiveRisk,
+        }
+      );
+      // For now, we'll proceed but log the requirement
+      // In a real system, this would pause and wait for user confirmation
+      console.warn(`[LUNA] Action ${actionDescriptor.id} requires confirmation: ${lunaDecision.reasons.join(', ')}`);
+    }
+  }
+
+  // Use the first action's decision as the overall decision (or combine them)
+  const lunaDecision = actionEvaluations[0]?.decision || {
+    type: 'allow' as const,
+    reasons: ['No actions to evaluate'],
+    triggeredConstraints: [],
+    effectiveRisk: 'low' as const,
+    context: {
+      userId: context.userId,
+      sessionId: context.sessionId,
+    },
+  };
+
+  // Only proceed if Luna allowed the actions
+  const solOutput = await mockSolGenerate(input.prompt);
+
+  // Update task actions with Sol output now that we have it
+  mavTask.actions[0].params = { 
+    ...mavTask.actions[0].params, 
+    output: solOutput 
   };
 
   // Emit: Task run event

@@ -50,11 +50,11 @@ export async function createEmbedding(
   });
   
   if (!embedReq.ok) {
-    const errorData = await embedReq.json();
+    const errorData = await embedReq.json() as { error?: { message?: string } };
     throw new Error(errorData.error?.message || 'OpenAI API error');
   }
   
-  const embedData = await embedReq.json();
+  const embedData = await embedReq.json() as { data: Array<{ embedding: number[] }> };
   const vector = embedData.data[0].embedding;
   
   // Store embedding in database

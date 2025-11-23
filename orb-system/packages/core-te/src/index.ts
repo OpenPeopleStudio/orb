@@ -17,6 +17,10 @@ export * from './fileReflectionStore';
 export * from './sqlStore';
 export * from './dbReflectionStore';
 export * from './supabaseReflectionStore';
+export * from './patternDetector';
+export { getPatternDetector, resetPatternDetector } from './patternDetector';
+export * from './learningStore';
+export { createLearningStore } from './learningStore';
 
 // Export memory types explicitly to avoid conflict with CreateEmbeddingRequest
 export type {

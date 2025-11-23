@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import OrbDashboard from './components/OrbDashboard';
 import OrbConsole from './components/OrbConsole';
+import PreferencesView from './components/PreferencesView';
 
-type ViewMode = 'dashboard' | 'console';
+type ViewMode = 'dashboard' | 'console' | 'preferences';
 
 const App = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('console');
@@ -41,10 +42,22 @@ const App = () => {
           >
             Dashboard
           </button>
+          <button
+            onClick={() => setViewMode('preferences')}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+              viewMode === 'preferences'
+                ? 'bg-accent-orb text-white'
+                : 'bg-white/5 text-text-muted hover:bg-white/10'
+            }`}
+          >
+            Preferences
+          </button>
         </div>
 
         {/* View Content */}
-        {viewMode === 'console' ? <OrbConsole /> : <OrbDashboard />}
+        {viewMode === 'console' && <OrbConsole />}
+        {viewMode === 'dashboard' && <OrbDashboard />}
+        {viewMode === 'preferences' && <PreferencesView />}
       </section>
     </main>
   );

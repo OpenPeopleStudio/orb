@@ -19,7 +19,7 @@ export interface ReflectionContext {
   transactions: FinancialTransaction[];
   recentDays: number;
   previousPeriod?: {
-    transactions: Transaction[];
+    transactions: FinancialTransaction[];
     totalSpend: number;
   };
   merchantPatterns: Record<string, number>;
@@ -251,8 +251,8 @@ Match the ${tone} tone. Be observational and helpful, never judgmental.`;
       }),
     });
     
-    const data = await response.json();
-    return data.choices[0]?.message?.content || 'Unable to generate reflection at this time.';
+    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    return data.choices?.[0]?.message?.content || 'Unable to generate reflection at this time.';
   } catch (error) {
     console.error('Error generating AI summary:', error);
     return generateFallbackSummary(context);

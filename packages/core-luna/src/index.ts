@@ -6,12 +6,10 @@ export interface PersonaBrief extends OrbContext {
 }
 
 const roleVoices: Record<OrbRole, PersonaBrief['voice']> = {
-  orb: 'systems',
-  sol: 'narrative',
-  te: 'operational',
-  mav: 'operational',
-  luna: 'design',
-  forge: 'systems',
+  [OrbRole.SOL]: 'narrative',
+  [OrbRole.TE]: 'operational',
+  [OrbRole.MAV]: 'operational',
+  [OrbRole.LUNA]: 'design',
 };
 
 export const buildPersonaBrief = (

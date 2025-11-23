@@ -7,9 +7,8 @@
 
 import { useState } from 'react';
 import { runDemoFlow, type UIDemoFlowResult } from '../ui';
-import type { DemoFlowResult, OrbEvent, OrbEventType, EventStats, EventFilter, OrbRole, OrbMode } from '@orb-system/core-orb';
-import { OrbEventType, OrbMode } from '@orb-system/core-orb';
-import { OrbRole } from '@orb-system/core-orb';
+import type { DemoFlowResult, OrbEvent, EventStats, EventFilter } from '@orb-system/core-orb';
+import { OrbEventType, OrbMode, OrbRole } from '@orb-system/core-orb';
 import { useEvents } from '../hooks/useEvents';
 
 type ModeId = 'default' | 'restaurant' | 'real_estate' | 'builder';
@@ -61,7 +60,7 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
     try {
       const flowResult = await runDemoFlow({
         prompt,
-        modeId,
+        modeId: modeId as OrbMode,
         userId: 'demo-user',
         sessionId: `session-${Date.now()}`,
       });
@@ -86,16 +85,20 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
           <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
             Luna Decision
           </h3>
-          <span className={`text-sm font-semibold ${typeColors[decision.type]}`}>
+          <span className={`text-sm font-semibold ${typeColors[decision.type as keyof typeof typeColors]}`}>
             {decision.type.toUpperCase()}
           </span>
         </div>
-        {decision.reasoning && (
-          <p className="text-sm text-text-primary">{decision.reasoning}</p>
+        {decision.reasons && decision.reasons.length > 0 && (
+          <div className="text-sm text-text-primary">
+            {decision.reasons.map((reason: string, idx: number) => (
+              <p key={idx} className="mb-1">{reason}</p>
+            ))}
+          </div>
         )}
-        {decision.riskLevel && (
+        {decision.effectiveRisk && (
           <p className="mt-2 text-xs text-text-muted">
-            Risk Level: <span className="font-semibold">{decision.riskLevel}</span>
+            Risk Level: <span className="font-semibold">{decision.effectiveRisk}</span>
           </p>
         )}
       </div>
@@ -117,7 +120,7 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
           <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
             Mav Task
           </h3>
-          <span className={`text-sm font-semibold ${statusColors[mavResult.status]}`}>
+          <span className={`text-sm font-semibold ${statusColors[mavResult.status as keyof typeof statusColors]}`}>
             {mavResult.status.toUpperCase()}
           </span>
         </div>
@@ -169,7 +172,7 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
           <div className="mb-2">
             <span className="text-xs text-text-muted">Tags: </span>
             <div className="mt-1 flex flex-wrap gap-1">
-              {teEval.tags.map((tag, i) => (
+              {teEval.tags.map((tag: string, i: number) => (
                 <span
                   key={i}
                   className="rounded bg-white/10 px-2 py-0.5 text-xs text-text-primary"
@@ -184,7 +187,7 @@ const OrbConsole = ({ className }: OrbConsoleProps) => {
           <div>
             <p className="mb-1 text-xs font-semibold text-text-muted">Recommendations:</p>
             <ul className="space-y-1 text-xs text-text-primary">
-              {teEval.recommendations.map((rec, i) => (
+              {teEval.recommendations.map((rec: string, i: number) => (
                 <li key={i} className="pl-2">• {rec}</li>
               ))}
             </ul>

@@ -251,7 +251,7 @@ function getModeContext(mode: string): string {
     case 'Mars':
       return 'Mode: Mars - Operational and action-oriented. Be direct and help prioritize urgent items.';
     case 'Earth':
-      return 'Mode: Earth - Balanced and flexible. Adapt to the user's immediate needs.';
+      return 'Mode: Earth - Balanced and flexible. Adapt to the user\'s immediate needs.';
     default:
       return `Mode: ${mode}`;
   }

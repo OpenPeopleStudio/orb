@@ -30,7 +30,7 @@ export const analyzeIntent = (context: OrbContext, prompt: string): SolInsight =
     intent,
     tone,
     confidence,
-    summary: `${context.title} sees ${intent} with ${Math.round(confidence * 100)}% confidence`,
+    summary: `${context.role.toUpperCase()} sees ${intent} with ${Math.round(confidence * 100)}% confidence`,
     highlightColor: palette.accent,
   };
 };

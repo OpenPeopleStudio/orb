@@ -8,7 +8,7 @@
 
 import { getSupabaseClient } from '@orb-system/core-orb';
 import type { TeReflection } from './reflectionHelpers';
-import type { TeReflectionStore } from './fileReflectionStore';
+import type { TeReflectionStore } from './sqlStore';
 
 /**
  * Supabase-backed Te reflection store

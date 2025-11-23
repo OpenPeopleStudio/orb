@@ -6,7 +6,7 @@
  * Persistent storage for Te reflections and evaluations using SQLite.
  */
 
-import { getDatabase } from '@orb-system/core-orb';
+import { getDb } from '@orb-system/core-orb';
 import type { TeReflection } from './reflectionHelpers';
 import type { TeEvaluation } from './evaluation';
 
@@ -26,7 +26,7 @@ export interface TeReflectionStore {
 }
 
 export class SqlTeReflectionStore implements TeReflectionStore {
-  private db = getDatabase();
+  private db = getDb();
 
   async saveReflection(reflection: TeReflectionRecord): Promise<void> {
     const stmt = this.db.prepare(`

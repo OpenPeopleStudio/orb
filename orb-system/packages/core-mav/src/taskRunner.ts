@@ -2,11 +2,20 @@
  * Task Runner
  * 
  * Role: OrbRole.MAV (actions/tools)
+ * Phase 6: Enhanced with event emission for learning loop
  * 
  * Runs tasks and returns structured results for downstream agents.
  */
 
-import { OrbRole, type OrbContext } from '@orb-system/core-orb';
+import { 
+  OrbRole, 
+  type OrbContext, 
+  getEventBus, 
+  OrbEventType,
+  type OrbDevice,
+  type OrbMode,
+  type OrbPersona,
+} from '@orb-system/core-orb';
 
 import { MockMavExecutor, type MavExecutor } from './executors';
 
@@ -73,6 +82,7 @@ function resolveExecutors(executors?: MavExecutor[]): MavExecutor[] {
 
 /**
  * Run a task using the provided executors (or a default mock fallback).
+ * Phase 6: Emits events for learning loop pattern detection.
  */
 export async function runTaskWithDefaults(
   ctx: OrbContext,
@@ -80,12 +90,35 @@ export async function runTaskWithDefaults(
   executors?: MavExecutor[],
 ): Promise<MavTaskResult> {
   const mavCtx = ensureMavContext(ctx);
+  const eventBus = getEventBus();
   const taskStartedAt = new Date().toISOString();
+  const startTime = Date.now();
   const actions: MavActionResult[] = [];
   let successCount = 0;
   let failureCount = 0;
 
   console.log(`[MAV] Running task: ${task.label}`);
+
+  // Emit ACTION_STARTED event
+  await eventBus.emit({
+    id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    type: OrbEventType.ACTION_STARTED,
+    timestamp: taskStartedAt,
+    userId: ctx.userId,
+    sessionId: ctx.sessionId,
+    deviceId: ctx.deviceId as OrbDevice | undefined,
+    mode: ctx.mode as OrbMode | undefined,
+    persona: ctx.persona as OrbPersona | undefined,
+    role: OrbRole.MAV,
+    payload: {
+      taskId: task.id,
+      taskLabel: task.label,
+      actionCount: task.actions.length,
+    },
+    metadata: {
+      startTime,
+    },
+  });
 
   const candidates = resolveExecutors(executors);
   const fallbackExecutor = candidates[candidates.length - 1];
@@ -138,6 +171,8 @@ export async function runTaskWithDefaults(
   }
 
   const finishedAt = new Date().toISOString();
+  const endTime = Date.now();
+  const duration = endTime - startTime;
   const status: MavTaskResult['status'] =
     failureCount === 0 ? 'completed' : successCount > 0 ? 'partial' : 'failed';
 
@@ -161,7 +196,7 @@ export async function runTaskWithDefaults(
     filesTouched.length > 0 ? `Files touched: ${filesTouched.length}` : ''
   }`.trim();
 
-  return {
+  const result: MavTaskResult = {
     taskId: task.id,
     label: task.label,
     status,
@@ -178,4 +213,58 @@ export async function runTaskWithDefaults(
       summary,
     },
   };
+
+  // Emit ACTION_COMPLETED or ACTION_FAILED event
+  if (status === 'failed') {
+    await eventBus.emit({
+      id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: OrbEventType.ACTION_FAILED,
+      timestamp: finishedAt,
+      userId: ctx.userId,
+      sessionId: ctx.sessionId,
+      deviceId: ctx.deviceId as OrbDevice | undefined,
+      mode: ctx.mode as OrbMode | undefined,
+      persona: ctx.persona as OrbPersona | undefined,
+      role: OrbRole.MAV,
+      payload: {
+        taskId: task.id,
+        taskLabel: task.label,
+        error: result.error,
+        actionsCompleted: successCount,
+        actionsTotal: task.actions.length,
+      },
+      metadata: {
+        duration,
+        success: false,
+        errors,
+      },
+    });
+  } else {
+    await eventBus.emit({
+      id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: OrbEventType.ACTION_COMPLETED,
+      timestamp: finishedAt,
+      userId: ctx.userId,
+      sessionId: ctx.sessionId,
+      deviceId: ctx.deviceId as OrbDevice | undefined,
+      mode: ctx.mode as OrbMode | undefined,
+      persona: ctx.persona as OrbPersona | undefined,
+      role: OrbRole.MAV,
+      payload: {
+        taskId: task.id,
+        taskLabel: task.label,
+        result: summary,
+        success: status === 'completed',
+        actionsCompleted: successCount,
+        actionsTotal: task.actions.length,
+      },
+      metadata: {
+        duration,
+        success: true,
+        filesTouched,
+      },
+    });
+  }
+
+  return result;
 }

@@ -274,7 +274,10 @@ This roadmap defines the evolution of `orb-system` from a TypeScript monorepo in
 
 **Goal**: "OS that learns" stops being a slogan.
 
-**Status**: ⚪ Not Started
+**Status**: 🟢 Ready to Start
+
+**Mission Prompt**: `docs/prompts/MISSION_6_LEARNING_LOOP.md`  
+**Agent Prompts**: `docs/prompts/learning-loop/`
 
 ### Tasks
 

@@ -20,7 +20,7 @@ import { OrbRole } from '../orbRoles';
  */
 export interface AdaptationPattern {
   id: string;
-  type: PatternType;
+  type: LegacyPatternType;
   confidence: number; // 0 to 1
   description: string;
   metadata: Record<string, unknown>;
@@ -28,9 +28,12 @@ export interface AdaptationPattern {
 }
 
 /**
- * Pattern Type - categories of patterns
+ * Legacy Pattern Type - categories of patterns (Phase 4)
+ * 
+ * Note: Phase 6 uses PatternType from ./types.ts
+ * This enum is kept for backwards compatibility.
  */
-export enum PatternType {
+export enum LegacyPatternType {
   MODE_USAGE = 'mode_usage',
   ERROR_PATTERN = 'error_pattern',
   FEATURE_USAGE = 'feature_usage',
@@ -212,7 +215,7 @@ export class AdaptationEngine {
       const topMode = stats.mostUsedModes[0];
       patterns.push({
         id: `pattern-mode-${topMode.mode}`,
-        type: PatternType.MODE_USAGE,
+        type: LegacyPatternType.MODE_USAGE,
         confidence: Math.min(1.0, topMode.count / Math.max(1, stats.totalEvents / 10)),
         description: `Mode "${topMode.mode}" is the most frequently used (${topMode.count} times)`,
         metadata: { mode: topMode.mode, count: topMode.count },
@@ -224,7 +227,7 @@ export class AdaptationEngine {
     if (stats.errorRate > 0.1) {
       patterns.push({
         id: 'pattern-high-error-rate',
-        type: PatternType.ERROR_PATTERN,
+        type: LegacyPatternType.ERROR_PATTERN,
         confidence: Math.min(1.0, stats.errorRate * 2),
         description: `High error rate detected: ${(stats.errorRate * 100).toFixed(1)}%`,
         metadata: { errorRate: stats.errorRate, totalEvents: stats.totalEvents },
@@ -236,7 +239,7 @@ export class AdaptationEngine {
     if (stats.errorRate > 0.5) {
       patterns.push({
         id: 'pattern-low-success-rate',
-        type: PatternType.PERFORMANCE_PATTERN,
+        type: LegacyPatternType.PERFORMANCE_PATTERN,
         confidence: stats.errorRate,
         description: `Low success rate: ${((1 - stats.errorRate) * 100).toFixed(1)}%`,
         metadata: { successRate: 1 - stats.errorRate, errorRate: stats.errorRate },
@@ -251,7 +254,7 @@ export class AdaptationEngine {
       if (switchRate > 0.1) {
         patterns.push({
           id: 'pattern-frequent-mode-switching',
-          type: PatternType.USER_BEHAVIOR,
+          type: LegacyPatternType.USER_BEHAVIOR,
           confidence: Math.min(1.0, switchRate * 5),
           description: `Frequent mode switching detected (${modeSwitches} switches)`,
           metadata: { modeSwitches, switchRate },

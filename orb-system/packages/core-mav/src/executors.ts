@@ -2,6 +2,7 @@
  * Mav Executors
  * 
  * Role: OrbRole.MAV (actions/tools)
+ * Phase 6: Enhanced with event emission for learning loop
  * 
  * Executors that actually perform actions in the real world.
  */
@@ -9,7 +10,14 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { OrbRole } from '@orb-system/core-orb';
+import { 
+  OrbRole, 
+  getEventBus, 
+  OrbEventType,
+  type OrbDevice,
+  type OrbMode,
+  type OrbPersona,
+} from '@orb-system/core-orb';
 
 import type {
   MavActionResult,
@@ -26,6 +34,138 @@ export interface MavExecutor {
     task: MavTask,
     action: MavTaskAction,
   ): Promise<MavActionResult>;
+}
+
+/**
+ * Helper to generate event IDs
+ */
+function generateEventId(): string {
+  return `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Wrapper to emit events around executor actions
+ */
+async function executeWithEvents(
+  ctx: MavExecutionContext,
+  task: MavTask,
+  action: MavTaskAction,
+  executor: () => Promise<MavActionResult>,
+): Promise<MavActionResult> {
+  const eventBus = getEventBus();
+  const startTime = Date.now();
+  const startedAt = new Date().toISOString();
+
+  // Emit ACTION_STARTED event
+  await eventBus.emit({
+    id: generateEventId(),
+    type: OrbEventType.ACTION_STARTED,
+    timestamp: startedAt,
+    userId: ctx.userId,
+    sessionId: ctx.sessionId,
+    deviceId: ctx.deviceId as OrbDevice | undefined,
+    mode: ctx.mode as OrbMode | undefined,
+    persona: ctx.persona as OrbPersona | undefined,
+    role: OrbRole.MAV,
+    payload: {
+      actionId: action.id,
+      actionType: action.kind,
+      toolId: action.toolId,
+      taskId: task.id,
+    },
+    metadata: {
+      startTime,
+    },
+  });
+
+  try {
+    const result = await executor();
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+
+    // Emit ACTION_COMPLETED or ACTION_FAILED based on result
+    if (result.status === 'success') {
+      await eventBus.emit({
+        id: generateEventId(),
+        type: OrbEventType.ACTION_COMPLETED,
+        timestamp: result.finishedAt,
+        userId: ctx.userId,
+        sessionId: ctx.sessionId,
+        deviceId: ctx.deviceId as OrbDevice | undefined,
+        mode: ctx.mode as OrbMode | undefined,
+        persona: ctx.persona as OrbPersona | undefined,
+        role: OrbRole.MAV,
+        payload: {
+          actionId: action.id,
+          actionType: action.kind,
+          toolId: action.toolId,
+          taskId: task.id,
+          result: result.output,
+        },
+        metadata: {
+          duration,
+          success: true,
+        },
+      });
+    } else {
+      await eventBus.emit({
+        id: generateEventId(),
+        type: OrbEventType.ACTION_FAILED,
+        timestamp: result.finishedAt,
+        userId: ctx.userId,
+        sessionId: ctx.sessionId,
+        deviceId: ctx.deviceId as OrbDevice | undefined,
+        mode: ctx.mode as OrbMode | undefined,
+        persona: ctx.persona as OrbPersona | undefined,
+        role: OrbRole.MAV,
+        payload: {
+          actionId: action.id,
+          actionType: action.kind,
+          toolId: action.toolId,
+          taskId: task.id,
+          error: result.error,
+        },
+        metadata: {
+          duration,
+          success: false,
+          errorMessage: result.error,
+        },
+      });
+    }
+
+    return result;
+  } catch (error) {
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Emit ACTION_FAILED event
+    await eventBus.emit({
+      id: generateEventId(),
+      type: OrbEventType.ACTION_FAILED,
+      timestamp: new Date().toISOString(),
+      userId: ctx.userId,
+      sessionId: ctx.sessionId,
+      deviceId: ctx.deviceId as OrbDevice | undefined,
+      mode: ctx.mode as OrbMode | undefined,
+      persona: ctx.persona as OrbPersona | undefined,
+      role: OrbRole.MAV,
+      payload: {
+        actionId: action.id,
+        actionType: action.kind,
+        toolId: action.toolId,
+        taskId: task.id,
+        error: errorMessage,
+      },
+      metadata: {
+        duration,
+        success: false,
+        errorMessage,
+      },
+    });
+
+    throw error;
+  }
 }
 
 const DEFAULT_LOG_PATH = path.resolve(process.cwd(), '.orb-data/mav/actions.log');
@@ -108,7 +248,8 @@ export class FileMavExecutor implements MavExecutor {
       console.warn(`FileMavExecutor.executeAction called with role ${ctx.role}, expected MAV`);
     }
 
-    const startedAt = new Date().toISOString();
+    return executeWithEvents(ctx, task, action, async () => {
+      const startedAt = new Date().toISOString();
     const entry: FileLogEntry = {
       ts: startedAt,
       taskId: task.id,
@@ -147,6 +288,7 @@ export class FileMavExecutor implements MavExecutor {
 
       return this.buildResult(task, action, 'failed', startedAt, finishedAt, undefined, errorMessage);
     }
+    });
   }
 }
 
@@ -169,23 +311,25 @@ export class MockMavExecutor implements MavExecutor {
       console.warn(`MockMavExecutor.executeAction called with role ${ctx.role}, expected MAV`);
     }
 
+    return executeWithEvents(ctx, task, action, async () => {
       const timestamp = new Date().toISOString();
-    return {
-      taskId: task.id,
-      actionId: action.id,
-      kind: action.kind,
-      toolId: action.toolId,
-      status: 'success',
-      startedAt: timestamp,
-      finishedAt: timestamp,
-      output: {
-        mock: true,
-        message: `Simulated ${action.kind}`,
-      },
-      metadata: {
-        executorId: this.id,
-      },
-    };
+      return {
+        taskId: task.id,
+        actionId: action.id,
+        kind: action.kind,
+        toolId: action.toolId,
+        status: 'success',
+        startedAt: timestamp,
+        finishedAt: timestamp,
+        output: {
+          mock: true,
+          message: `Simulated ${action.kind}`,
+        },
+        metadata: {
+          executorId: this.id,
+        },
+      };
+    });
   }
 }
 
@@ -324,9 +468,10 @@ export class FileSystemMavExecutor implements MavExecutor {
       console.warn(`FileSystemMavExecutor.executeAction called with role ${ctx.role}, expected MAV`);
     }
 
-    const startedAt = new Date().toISOString();
+    return executeWithEvents(ctx, task, action, async () => {
+      const startedAt = new Date().toISOString();
 
-    // Extract file path and content from params
+      // Extract file path and content from params
     const filePath = action.params?.path as string | undefined;
     const content = action.params?.content as string | undefined;
 
@@ -418,6 +563,7 @@ export class FileSystemMavExecutor implements MavExecutor {
         },
       };
     }
+    });
   }
 }
 
@@ -440,20 +586,22 @@ export class HttpMavExecutor implements MavExecutor {
       console.warn(`HttpMavExecutor.executeAction called with role ${ctx.role}, expected MAV`);
     }
 
-    const timestamp = new Date().toISOString();
-    return {
-      taskId: task.id,
-      actionId: action.id,
-      kind: action.kind,
-      toolId: action.toolId,
-      status: 'failed',
-      startedAt: timestamp,
-      finishedAt: timestamp,
-      error: 'HTTP executor not yet implemented',
-      metadata: {
-        executorId: this.id,
-      },
-    };
+    return executeWithEvents(ctx, task, action, async () => {
+      const timestamp = new Date().toISOString();
+      return {
+        taskId: task.id,
+        actionId: action.id,
+        kind: action.kind,
+        toolId: action.toolId,
+        status: 'failed',
+        startedAt: timestamp,
+        finishedAt: timestamp,
+        error: 'HTTP executor not yet implemented',
+        metadata: {
+          executorId: this.id,
+        },
+      };
+    });
   }
 }
 

@@ -4,16 +4,37 @@
  * Role: OrbRole.LUNA (preferences/intent)
  *
  * Evaluates actions against user preferences and constraints.
+ * 
+ * NOTE: This is a stub implementation. The full implementation is in orb-system/packages/core-luna
  */
 
-import { getDb, isPersistenceEnabled, OrbRole, type OrbContext } from '@orb-system/core-orb';
+import { OrbRole, type OrbContext } from '@orb-system/core-orb';
 
-import { InMemoryLunaPreferencesStore, type LunaPreferencesStore } from './preferencesStore';
-import { SqlLunaPreferencesStore } from './sqlStore';
-import type { LunaActionDescriptor, LunaDecision, LunaDecisionType, LunaRiskLevel } from './types';
+// Stub types - full types are in orb-system/packages/core-luna
+type LunaActionDescriptor = {
+  toolId?: string;
+  estimatedRisk?: 'low' | 'medium' | 'high';
+  role?: OrbRole;
+};
+
+type LunaDecisionType = 'allow' | 'require_confirmation' | 'deny';
+type LunaRiskLevel = 'low' | 'medium' | 'high';
+
+type LunaDecision = {
+  type: LunaDecisionType;
+  reasons: string[];
+  triggeredConstraints: string[];
+  effectiveRisk: LunaRiskLevel;
+  context: {
+    userId: string | null;
+    sessionId: string;
+  };
+};
 
 /**
  * Evaluate an action against user preferences and constraints
+ * 
+ * NOTE: This is a stub implementation. The full implementation is in orb-system/packages/core-luna
  */
 export async function evaluateActionWithDefaults(
   ctx: OrbContext,
@@ -23,66 +44,13 @@ export async function evaluateActionWithDefaults(
     console.warn(`evaluateActionWithDefaults called with role ${ctx.role}, expected LUNA`);
   }
 
-  // Use persistent store if enabled, otherwise fall back to in-memory
-  let store: LunaPreferencesStore;
-  if (isPersistenceEnabled()) {
-    store = new SqlLunaPreferencesStore(getDb());
-  } else {
-    store = new InMemoryLunaPreferencesStore();
-  }
-
-  const userId = ctx.userId || 'default-user';
-
-  // Get active mode and profile
-  const activeMode = await store.getActiveMode(userId);
-  const profile = await store.getProfile(userId, activeMode);
-
-  const triggeredConstraints: string[] = [];
-  const reasons: string[] = [];
-  let decisionType: LunaDecisionType = 'allow';
+  // Stub implementation - always allow
   const effectiveRisk: LunaRiskLevel = action.estimatedRisk || 'low';
-
-  // Check constraints if profile exists
-  if (profile) {
-    for (const constraint of profile.constraints) {
-      if (!constraint.active) continue;
-
-      // Check tool blocking
-      if (constraint.type === 'block_tool' && constraint.toolId === action.toolId) {
-        triggeredConstraints.push(constraint.id);
-        reasons.push(`Tool ${action.toolId} is blocked by constraint ${constraint.id}`);
-        decisionType = 'deny';
-      }
-
-      // Check risk level
-      if (constraint.type === 'max_risk' && constraint.maxRisk) {
-        const riskLevels: LunaRiskLevel[] = ['low', 'medium', 'high'];
-        const actionRiskIndex = riskLevels.indexOf(effectiveRisk);
-        const maxRiskIndex = riskLevels.indexOf(constraint.maxRisk);
-
-        if (actionRiskIndex > maxRiskIndex) {
-          triggeredConstraints.push(constraint.id);
-          reasons.push(`Action risk (${effectiveRisk}) exceeds maximum allowed (${constraint.maxRisk})`);
-          decisionType = 'require_confirmation';
-        }
-      }
-
-      // Check role restrictions
-      if (constraint.appliesToRoles && !constraint.appliesToRoles.includes(action.role)) {
-        continue;
-      }
-    }
-  }
-
-  // Default: allow if no constraints triggered
-  if (triggeredConstraints.length === 0) {
-    reasons.push('No constraints triggered, action allowed');
-  }
-
+  
   return {
-    type: decisionType,
-    reasons,
-    triggeredConstraints,
+    type: 'allow',
+    reasons: ['Stub implementation - always allows'],
+    triggeredConstraints: [],
     effectiveRisk,
     context: {
       userId: ctx.userId || null,

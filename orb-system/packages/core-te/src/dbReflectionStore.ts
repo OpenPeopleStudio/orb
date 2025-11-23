@@ -9,7 +9,7 @@
 
 import { getDb } from '@orb-system/core-orb';
 import { SqlTeReflectionStore } from './sqlStore';
-import type { TeReflectionStore } from './fileReflectionStore';
+import type { TeReflectionStore } from './sqlStore';
 
 /**
  * Database-backed Te reflection store

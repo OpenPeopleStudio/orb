@@ -143,6 +143,53 @@ export function apiPlugin(): Plugin {
                 }
               });
             }
+          } else if (pathname === '/api/preferences' || pathname === '/api/preferences/') {
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = path.dirname(__filename);
+            const prefsPath = path.resolve(__dirname, 'src/api/preferences.ts');
+
+            let prefsModule;
+            try {
+              prefsModule = await import(
+                /* @vite-ignore */
+                `file://${prefsPath}`
+              );
+            } catch {
+              const prefsPathJs = prefsPath.replace(/\.ts$/, '.js');
+              prefsModule = await import(
+                /* @vite-ignore */
+                `file://${prefsPathJs}`
+              );
+            }
+
+            const { getPreferencesSnapshot, updatePreferences } = prefsModule;
+
+            if (req.method === 'GET') {
+              const userId = url.searchParams.get('userId') || undefined;
+              const snapshot = await getPreferencesSnapshot(userId || undefined);
+              res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
+              res.end(JSON.stringify({ preferences: snapshot }));
+            } else if (req.method === 'POST') {
+              let body = '';
+              req.on('data', (chunk) => {
+                body += chunk.toString();
+              });
+              req.on('end', async () => {
+                try {
+                  const parsed = JSON.parse(body || '{}');
+                  const snapshot = await updatePreferences(parsed);
+                  res.setHeader('Content-Type', 'application/json');
+                  res.setHeader('Access-Control-Allow-Origin', '*');
+                  res.end(JSON.stringify({ preferences: snapshot }));
+                } catch (error) {
+                  console.error('[API] Failed to update preferences', error);
+                  res.statusCode = 400;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify({ error: 'Invalid request body' }));
+                }
+              });
+            }
           } else {
             // Unknown API route - let it pass through
             return next();
