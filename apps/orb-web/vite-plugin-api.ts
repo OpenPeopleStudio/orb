@@ -5,10 +5,11 @@
  * Handles /api/* routes and executes server-side code.
  */
 
-import type { Plugin } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import type { Plugin } from 'vite';
 
 export function apiPlugin(): Plugin {
   return {
@@ -46,7 +47,7 @@ export function apiPlugin(): Plugin {
                 /* @vite-ignore */
                 `file://${eventsPath}`
               );
-            } catch (error) {
+            } catch {
               // Try .js extension if .ts fails
               const eventsPathJs = eventsPath.replace(/\.ts$/, '.js');
               console.log('[API] Trying .js extension:', eventsPathJs);
@@ -60,7 +61,7 @@ export function apiPlugin(): Plugin {
 
             if (req.method === 'GET') {
               // Parse query parameters
-              const filter: any = {};
+              const filter: Record<string, string | string[] | undefined> = {};
               
               // Parse type parameter - split comma-separated values into array
               const typeParam = url.searchParams.get('type');
@@ -136,7 +137,7 @@ export function apiPlugin(): Plugin {
                     res.setHeader('Access-Control-Allow-Origin', '*');
                     res.end(JSON.stringify({ events }));
                   }
-                } catch (error) {
+                } catch {
                   res.statusCode = 400;
                   res.setHeader('Content-Type', 'application/json');
                   res.end(JSON.stringify({ error: 'Invalid request body' }));

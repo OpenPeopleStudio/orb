@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
+
 import type { OrbEvent, EventFilter, EventStats } from '@orb-system/core-orb';
 
 export interface UseEventsOptions {

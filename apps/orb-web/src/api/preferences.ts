@@ -1,4 +1,10 @@
 import {
+  modeService,
+  createProfileFromPreset,
+  type Mode,
+  type Persona,
+} from '@orb-system/core-luna';
+import {
   OrbDevice,
   OrbPersona,
   classifyPersona,
@@ -7,12 +13,6 @@ import {
   type ActionContext,
   type ConstraintSet,
 } from '@orb-system/core-orb';
-import {
-  modeService,
-  createProfileFromPreset,
-  type Mode,
-  type Persona,
-} from '@orb-system/core-luna';
 
 const DEFAULT_USER_ID = 'demo-user';
 const DEFAULT_DEVICE = OrbDevice.SOL;

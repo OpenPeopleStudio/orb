@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import { OrbPersona, getPersonaDisplayName } from '@orb-system/core-orb';
 
 import { usePreferences } from '../hooks/usePreferences';

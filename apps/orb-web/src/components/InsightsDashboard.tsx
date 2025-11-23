@@ -7,9 +7,11 @@
  */
 
 import React from 'react';
+
 import { useInsights } from '../hooks/useInsights';
-import { PatternVisualization } from './PatternVisualization';
+
 import { LearningTimeline } from './LearningTimeline';
+import { PatternVisualization } from './PatternVisualization';
 
 export function InsightsDashboard() {
   const {

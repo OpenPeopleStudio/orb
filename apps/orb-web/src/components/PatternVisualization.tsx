@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+
 import type { Pattern } from '@orb-system/core-orb';
 
 interface PatternVisualizationProps {

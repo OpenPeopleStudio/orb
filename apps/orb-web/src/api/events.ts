@@ -49,9 +49,9 @@ export async function getEventStats(filter?: EventFilter): Promise<EventStats> {
     // Return empty stats on error
     return {
       totalEvents: 0,
-      byType: {} as any,
+      byType: {} as Record<string, number>,
       byMode: {},
-      byRole: {} as any,
+      byRole: {} as Record<string, number>,
       mostUsedModes: [],
       errorRate: 0,
     };

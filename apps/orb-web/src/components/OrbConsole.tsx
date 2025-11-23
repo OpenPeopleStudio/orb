@@ -6,10 +6,12 @@
  */
 
 import { useState } from 'react';
-import { runDemoFlow, type UIDemoFlowResult } from '../ui';
-import type { DemoFlowResult, OrbEvent, EventStats, EventFilter } from '@orb-system/core-orb';
+
+import type { DemoFlowResult, EventFilter } from '@orb-system/core-orb';
 import { OrbEventType, OrbMode, OrbRole } from '@orb-system/core-orb';
+
 import { useEvents } from '../hooks/useEvents';
+import { runDemoFlow, type UIDemoFlowResult } from '../ui';
 
 type ModeId = 'default' | 'restaurant' | 'real_estate' | 'builder';
 

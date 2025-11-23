@@ -1,8 +1,8 @@
 import { Route, Routes, Link, useLocation } from 'react-router-dom';
 
 import OrbDashboard from './components/OrbDashboard';
-import ContactsHome from './pages/contacts/ContactsHome';
 import ContactDetail from './pages/contacts/ContactDetail';
+import ContactsHome from './pages/contacts/ContactsHome';
 
 const App = () => {
   const location = useLocation();

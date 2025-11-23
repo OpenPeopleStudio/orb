@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+
 import type { Pattern, Insight, LearningAction } from '@orb-system/core-orb';
 
 export interface UseInsightsResult {

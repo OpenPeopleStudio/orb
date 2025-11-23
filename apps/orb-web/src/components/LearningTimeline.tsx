@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+
 import type { LearningAction, Insight } from '@orb-system/core-orb';
 
 interface LearningTimelineProps {
