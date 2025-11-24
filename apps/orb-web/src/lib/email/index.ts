@@ -4,13 +4,13 @@
  * Unified email client for Gmail and iCloud Mail
  */
 
-export * from './types';
 export * from './gmail';
 export * from './icloud';
+export * from './types';
 
-import type { Email, EmailAccount, EmailFilter, EmailSearchResult, EmailSendRequest } from './types';
 import { fetchGmailEmails, sendGmailEmail } from './gmail';
 import { fetchICloudEmails, sendICloudEmail } from './icloud';
+import type { Email, EmailAccount, EmailFilter, EmailSearchResult, EmailSendRequest } from './types';
 
 /**
  * Unified email client that works across Gmail and iCloud

@@ -27,3 +27,19 @@ body {
   border: 1px solid rgba(185, 228, 255, 0.08);
   backdrop-filter: blur(12px);
 }
+
+/* Toast animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}

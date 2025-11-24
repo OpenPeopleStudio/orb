@@ -85,20 +85,48 @@ export async function fetchICloudEmails(
     throw new Error(error.message || 'Failed to fetch iCloud emails');
   }
   
-  const data = await response.json();
+  const data = await response.json() as { messages: ImapMessage[]; total: number; hasMore: boolean };
   
   return {
-    emails: data.messages.map((msg: any) => parseICloudMessage(msg, account)),
+    emails: data.messages.map((msg: ImapMessage) => parseICloudMessage(msg, account)),
     threads: [],
     total: data.total,
     hasMore: data.hasMore,
   };
 }
 
+interface ImapEmailAddress {
+  name?: string;
+  email: string;
+}
+
+interface ImapAttachment {
+  id: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+}
+
+interface ImapMessage {
+  id: string;
+  threadId?: string;
+  from: ImapEmailAddress;
+  to: ImapEmailAddress[];
+  cc?: ImapEmailAddress[];
+  subject?: string;
+  textBody?: string;
+  htmlBody?: string;
+  snippet?: string;
+  date: string | Date;
+  flags?: string[];
+  hasAttachments?: boolean;
+  attachments?: ImapAttachment[];
+}
+
 /**
  * Parse IMAP message format to our Email type
  */
-function parseICloudMessage(imapMsg: any, account: EmailAccount): Email {
+function parseICloudMessage(imapMsg: ImapMessage, account: EmailAccount): Email {
   return {
     id: imapMsg.id,
     accountId: account.id,
@@ -108,11 +136,11 @@ function parseICloudMessage(imapMsg: any, account: EmailAccount): Email {
       name: imapMsg.from.name,
       email: imapMsg.from.email,
     },
-    to: imapMsg.to.map((t: any) => ({
+    to: imapMsg.to.map((t: ImapEmailAddress) => ({
       name: t.name,
       email: t.email,
     })),
-    cc: imapMsg.cc?.map((t: any) => ({
+    cc: imapMsg.cc?.map((t: ImapEmailAddress) => ({
       name: t.name,
       email: t.email,
     })),

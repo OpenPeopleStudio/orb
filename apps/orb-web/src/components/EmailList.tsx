@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+
 import type { Email } from '../lib/email';
 
 interface Props {

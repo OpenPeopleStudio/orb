@@ -8,6 +8,17 @@ export interface Reflection {
   emphasisColor: string;
 }
 
+export interface TeReflectionRecord {
+  id: string;
+  user_id: string;
+  session_id: string | null;
+  input: string;
+  output: string;
+  tags: string[];
+  notes: string | null;
+  created_at: string;
+}
+
 export const reflect = (context: OrbContext, signals: string[]): Reflection => {
   const palette = getOrbPalette(context.role);
   const joined = signals.join(' ');
@@ -22,5 +33,26 @@ export const reflect = (context: OrbContext, signals: string[]): Reflection => {
     actions,
     embeddingSeed,
     emphasisColor: palette.accent,
+  };
+};
+
+/**
+ * Convert Reflection to database record format
+ */
+export const toReflectionRecord = (
+  reflection: Reflection,
+  context: OrbContext,
+  input: string,
+  tags: string[] = [],
+  notes: string | null = null
+): Omit<TeReflectionRecord, 'created_at'> => {
+  return {
+    id: `te_${context.sessionId}_${Date.now()}`,
+    user_id: context.userId || 'anonymous',
+    session_id: context.sessionId,
+    input,
+    output: reflection.summary,
+    tags,
+    notes,
   };
 };

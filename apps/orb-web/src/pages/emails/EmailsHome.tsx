@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function EmailsHome() {
   const [selectedAccount, setSelectedAccount] = useState<'gmail' | 'icloud' | null>(null);
@@ -8,7 +9,7 @@ export default function EmailsHome() {
       <div className="mb-8">
         <h1 className="text-3xl font-semibold">Emails</h1>
         <p className="mt-2 text-text-muted">
-          Unified inbox across Gmail and iCloud
+          Unified inbox across all connected accounts
         </p>
       </div>
 
@@ -48,20 +49,20 @@ export default function EmailsHome() {
 
       <div className="rounded-lg border border-white/10 bg-bg-surface/50 p-12 text-center">
         <div className="mx-auto max-w-md">
-          <h2 className="text-xl font-semibold">Email Integration</h2>
+          <h2 className="text-xl font-semibold">No Email Accounts Connected</h2>
           <p className="mt-4 text-text-muted">
-            Connect your Gmail and iCloud accounts to see your emails here.
+            Connect your email accounts in Settings to see your emails here.
           </p>
-          <div className="mt-6 space-y-3">
-            <button className="w-full rounded-lg bg-accent-sol/20 px-4 py-3 text-sm font-medium text-accent-sol hover:bg-accent-sol/30">
-              Connect Gmail Account
-            </button>
-            <button className="w-full rounded-lg bg-accent-te/20 px-4 py-3 text-sm font-medium text-accent-te hover:bg-accent-te/30">
-              Connect iCloud Account
-            </button>
+          <div className="mt-6">
+            <Link
+              to="/settings"
+              className="inline-block w-full rounded-lg bg-accent-orb/20 px-4 py-3 text-sm font-medium text-accent-orb hover:bg-accent-orb/30"
+            >
+              Go to Settings → Account Connections
+            </Link>
           </div>
           <p className="mt-6 text-xs text-text-muted">
-            Authentication flow will use OAuth 2.0 for secure access
+            Supports Gmail, iCloud, and more
           </p>
         </div>
       </div>

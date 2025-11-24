@@ -4,7 +4,7 @@
  * OAuth 2.0 authentication and Gmail API client for fetching emails
  */
 
-import type { Email, EmailAccount, EmailFilter, EmailSearchResult, EmailSendRequest, EmailThread } from './types';
+import type { Email, EmailAccount, EmailFilter, EmailSearchResult, EmailSendRequest } from './types';
 
 const GMAIL_SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
@@ -161,11 +161,42 @@ export async function fetchGmailEmails(
   };
 }
 
+interface GmailHeader {
+  name: string;
+  value: string;
+}
+
+interface GmailPayload {
+  headers: GmailHeader[];
+  body?: {
+    data?: string;
+  };
+  mimeType?: string;
+  parts?: GmailPayloadPart[];
+}
+
+interface GmailPayloadPart {
+  mimeType?: string;
+  body?: {
+    data?: string;
+  };
+  filename?: string;
+}
+
+interface GmailMessage {
+  id: string;
+  threadId: string;
+  labelIds?: string[];
+  snippet: string;
+  internalDate: string;
+  payload: GmailPayload;
+}
+
 /**
  * Parse Gmail API message format to our Email type
  */
-function parseGmailMessage(gmailMsg: any, account: EmailAccount): Email {
-  const headers = gmailMsg.payload.headers.reduce((acc: any, h: any) => {
+function parseGmailMessage(gmailMsg: GmailMessage, account: EmailAccount): Email {
+  const headers = gmailMsg.payload.headers.reduce((acc: Record<string, string>, h: GmailHeader) => {
     acc[h.name.toLowerCase()] = h.value;
     return acc;
   }, {});
@@ -178,7 +209,7 @@ function parseGmailMessage(gmailMsg: any, account: EmailAccount): Email {
     };
   };
   
-  const getBody = (payload: any): { text?: string; html?: string } => {
+  const getBody = (payload: GmailPayload): { text?: string; html?: string } => {
     let text: string | undefined;
     let html: string | undefined;
     
@@ -220,7 +251,7 @@ function parseGmailMessage(gmailMsg: any, account: EmailAccount): Email {
     unread: gmailMsg.labelIds?.includes('UNREAD') || false,
     starred: gmailMsg.labelIds?.includes('STARRED') || false,
     important: gmailMsg.labelIds?.includes('IMPORTANT'),
-    hasAttachments: gmailMsg.payload.parts?.some((p: any) => p.filename) || false,
+    hasAttachments: gmailMsg.payload.parts?.some((p: GmailPayloadPart) => p.filename) || false,
     inReplyTo: headers['in-reply-to'],
     references: headers.references?.split(/\s+/),
     raw: gmailMsg,

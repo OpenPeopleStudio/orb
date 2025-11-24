@@ -29,4 +29,22 @@ export const summarizeSignals = (insights) => {
         .map((insight) => `${insight.intent} (${Math.round(insight.confidence * 100)}%)`)
         .join(' • ');
 };
+/**
+ * Convert SolInsight to database record format
+ */
+export const toInsightRecord = (insight, context, prompt, metadata = {}) => {
+    return {
+        id: `sol_${context.sessionId}_${Date.now()}`,
+        user_id: context.userId || 'anonymous',
+        session_id: context.sessionId,
+        intent: insight.intent,
+        confidence: insight.confidence,
+        tone: insight.tone,
+        prompt,
+        summary: insight.summary,
+        role: 'sol',
+        highlight_color: insight.highlightColor,
+        metadata,
+    };
+};
 //# sourceMappingURL=index.js.map

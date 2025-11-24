@@ -13,4 +13,18 @@ export const reflect = (context, signals) => {
         emphasisColor: palette.accent,
     };
 };
+/**
+ * Convert Reflection to database record format
+ */
+export const toReflectionRecord = (reflection, context, input, tags = [], notes = null) => {
+    return {
+        id: `te_${context.sessionId}_${Date.now()}`,
+        user_id: context.userId || 'anonymous',
+        session_id: context.sessionId,
+        input,
+        output: reflection.summary,
+        tags,
+        notes,
+    };
+};
 //# sourceMappingURL=index.js.map

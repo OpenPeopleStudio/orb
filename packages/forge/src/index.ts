@@ -5,3 +5,5 @@ export * from './types';
 export * from './agents';
 export * from './orchestrator';
 export * from './runtime';
+export * from './mission-types';
+export * from './mission-processor';

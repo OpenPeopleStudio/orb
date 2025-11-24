@@ -24,4 +24,22 @@ export const buildActionPlan = (context, goals) => {
         accent: palette.accent,
     };
 };
+/**
+ * Convert ActionPlanItem to database record format
+ */
+export const toActionRecord = (item, context, taskId, toolId = null, kind = 'execute', params = null, output = null, error = null) => {
+    return {
+        id: `mav_${context.sessionId}_${item.id}`,
+        user_id: context.userId || 'anonymous',
+        session_id: context.sessionId,
+        task_id: taskId,
+        action_id: item.id,
+        tool_id: toolId,
+        kind,
+        params,
+        status: item.status === 'in-flight' ? 'running' : item.status === 'done' ? 'completed' : 'queued',
+        output,
+        error,
+    };
+};
 //# sourceMappingURL=index.js.map
