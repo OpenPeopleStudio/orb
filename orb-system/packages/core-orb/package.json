@@ -17,7 +17,8 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "dependencies": {},
+  "optionalDependencies": {
     "better-sqlite3": "^9.2.2"
   },
   "devDependencies": {

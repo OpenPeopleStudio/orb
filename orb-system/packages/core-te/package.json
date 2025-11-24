@@ -20,10 +20,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@orb-system/core-orb": "workspace:*",
-    "better-sqlite3": "^9.2.2"
+    "@orb-system/core-orb": "workspace:*"
   },
-  "peerDependencies": {
+  "optionalDependencies": {
     "better-sqlite3": "^9.2.2"
   },
   "devDependencies": {

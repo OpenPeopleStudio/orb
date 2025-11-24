@@ -1,7 +1,7 @@
 {
-  "installCommand": "yarn install --ignore-optional",
-  "buildCommand": "yarn workspace @orb-system/orb-web build",
+  "buildCommand": "cd apps/orb-web && pnpm install --shamefully-hoist --ignore-scripts && pnpm build",
   "outputDirectory": "apps/orb-web/dist",
-  "framework": null
+  "installCommand": "pnpm install --shamefully-hoist --ignore-scripts",
+  "framework": null,
+  "devCommand": "pnpm --filter @orb-system/orb-web dev"
 }
-
