@@ -1,5 +1,5 @@
 import { OrbDevice, OrbMode, OrbPersona } from '../identity/types';
-import { ConstraintSet } from './types';
+import { ConstraintSet, ActionContext } from './types';
 
 export function getDefaultConstraintSets(): ConstraintSet[] {
   const systemSafety: ConstraintSet = {
@@ -19,7 +19,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
         appliesTo: {
           actions: ['file_write', 'tool_call', 'task'],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (!context.action) {
             return { status: 'pass' };
           }
@@ -31,7 +31,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
             return { status: 'pass' };
           }
           return {
-            status: 'fail',
+            status: 'block',
             reason: 'High-risk actions are limited to Forge or Builder mode.',
           };
         },
@@ -45,7 +45,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
           actions: ['file_write'],
           modes: [OrbMode.EARTH, OrbMode.DEFAULT],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (!context.action) {
             return { status: 'pass' };
           }
@@ -74,12 +74,12 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
           actions: ['mode_transition'],
           modes: [OrbMode.RESTAURANT, OrbMode.MARS],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (context.persona === OrbPersona.SWL) {
             return { status: 'pass' };
           }
           return {
-            status: 'fail',
+            status: 'block',
             reason: 'Restaurant/Mars mode is only available when the SWL persona is active.',
           };
         },
@@ -92,7 +92,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
           actions: ['mode_transition'],
           modes: [OrbMode.RESTAURANT],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (!context.device || context.device === OrbDevice.MARS) {
             return { status: 'pass' };
           }
@@ -119,7 +119,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
           actions: ['mode_transition'],
           modes: [OrbMode.REAL_ESTATE],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (!context.device) {
             return {
               status: 'warn',
@@ -130,7 +130,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
             return { status: 'pass' };
           }
           return {
-            status: 'fail',
+            status: 'block',
             reason: 'Real Estate mode requires the Mars or Earth device profile.',
           };
         },
@@ -151,7 +151,7 @@ export function getDefaultConstraintSets(): ConstraintSet[] {
           personas: [OrbPersona.OPEN_PEOPLE],
           actions: ['file_write', 'tool_call', 'task'],
         },
-        evaluate: (context) => {
+        evaluate: (context: ActionContext) => {
           if (context.action?.risk === 'high') {
             return {
               status: 'warn',

@@ -31,8 +31,8 @@ export function classifyPersona(context: PersonaContext): PersonaClassificationR
   // Evaluate all rules
   const rules = getPersonaRules();
   const matchedRules = rules
-    .filter(rule => rule.condition(context))
-    .sort((a, b) => b.priority - a.priority);
+    .filter(rule => rule.applies(context))
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   
   // If no rules matched, return default
   if (matchedRules.length === 0) {
@@ -46,7 +46,7 @@ export function classifyPersona(context: PersonaContext): PersonaClassificationR
   
   // Take the highest priority rule
   const topRule = matchedRules[0];
-  const reasoning = [topRule.reasoning];
+  const reasoning = topRule.reasoning ? [topRule.reasoning] : [];
   
   // Collect alternatives
   const alternatives = matchedRules
@@ -77,7 +77,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'feature-swl',
       priority: 100,
-      condition: (ctx) => ctx.feature === 'SWL' || ctx.feature === 'restaurant',
+      applies: (ctx: PersonaContext) => ctx.feature === 'SWL' || ctx.feature === 'restaurant',
       persona: OrbPersona.SWL,
       confidence: 0.95,
       reasoning: 'Feature context indicates restaurant/SWL operations',
@@ -85,7 +85,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'feature-real-estate',
       priority: 100,
-      condition: (ctx) => ctx.feature === 'RealEstate' || ctx.feature === 'deals',
+      applies: (ctx: PersonaContext) => ctx.feature === 'RealEstate' || ctx.feature === 'deals',
       persona: OrbPersona.REAL_ESTATE,
       confidence: 0.95,
       reasoning: 'Feature context indicates real estate operations',
@@ -95,7 +95,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'mode-restaurant',
       priority: 90,
-      condition: (ctx) => ctx.mode === OrbMode.RESTAURANT,
+      applies: (ctx: PersonaContext) => ctx.mode === OrbMode.RESTAURANT,
       persona: OrbPersona.SWL,
       confidence: 0.9,
       reasoning: 'Restaurant mode indicates SWL operations',
@@ -103,7 +103,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'mode-mars',
       priority: 80,
-      condition: (ctx) => ctx.mode === OrbMode.MARS,
+      applies: (ctx: PersonaContext) => ctx.mode === OrbMode.MARS,
       persona: OrbPersona.SWL,
       confidence: 0.85,
       reasoning: 'Mars mode typically used for operational work (SWL)',
@@ -111,7 +111,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'mode-real-estate',
       priority: 90,
-      condition: (ctx) => ctx.mode === OrbMode.REAL_ESTATE,
+      applies: (ctx: PersonaContext) => ctx.mode === OrbMode.REAL_ESTATE,
       persona: OrbPersona.REAL_ESTATE,
       confidence: 0.9,
       reasoning: 'Real Estate mode indicates real estate operations',
@@ -119,7 +119,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'mode-explorer',
       priority: 80,
-      condition: (ctx) => ctx.mode === OrbMode.EXPLORER,
+      applies: (ctx: PersonaContext) => ctx.mode === OrbMode.EXPLORER,
       persona: OrbPersona.OPEN_PEOPLE,
       confidence: 0.85,
       reasoning: 'Explorer mode indicates research/knowledge work',
@@ -127,7 +127,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'mode-earth',
       priority: 70,
-      condition: (ctx) => ctx.mode === OrbMode.EARTH,
+      applies: (ctx: PersonaContext) => ctx.mode === OrbMode.EARTH,
       persona: OrbPersona.PERSONAL,
       confidence: 0.8,
       reasoning: 'Earth mode indicates personal/life context',
@@ -137,7 +137,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'device-mars',
       priority: 60,
-      condition: (ctx) => ctx.device === OrbDevice.MARS,
+      applies: (ctx: PersonaContext) => ctx.device === OrbDevice.MARS,
       persona: OrbPersona.SWL,
       confidence: 0.75,
       reasoning: 'Mars device typically used for restaurant operations',
@@ -145,7 +145,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'device-earth',
       priority: 60,
-      condition: (ctx) => ctx.device === OrbDevice.EARTH,
+      applies: (ctx: PersonaContext) => ctx.device === OrbDevice.EARTH,
       persona: OrbPersona.PERSONAL,
       confidence: 0.7,
       reasoning: 'Earth device typically used for personal context',
@@ -153,7 +153,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'device-sol',
       priority: 50,
-      condition: (ctx) => ctx.device === OrbDevice.SOL || ctx.device === OrbDevice.LUNA,
+      applies: (ctx: PersonaContext) => ctx.device === OrbDevice.SOL || ctx.device === OrbDevice.LUNA,
       persona: OrbPersona.PERSONAL,
       confidence: 0.65,
       reasoning: 'Sol/Luna devices typically used for design/development work',
@@ -163,7 +163,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'time-evening',
       priority: 30,
-      condition: (ctx) => {
+      applies: (ctx: PersonaContext) => {
         if (!ctx.timeOfDay) return false;
         const hour = new Date(ctx.timeOfDay).getHours();
         return hour >= 18 || hour < 6;
@@ -175,7 +175,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'time-service-hours',
       priority: 30,
-      condition: (ctx) => {
+      applies: (ctx: PersonaContext) => {
         if (!ctx.timeOfDay) return false;
         const hour = new Date(ctx.timeOfDay).getHours();
         return (hour >= 11 && hour <= 14) || (hour >= 17 && hour <= 21);
@@ -189,7 +189,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'activity-contacts',
       priority: 40,
-      condition: (ctx) =>
+      applies: (ctx: PersonaContext) =>
         ctx.recentActivity?.some(
           a => a.includes('contact') || a.includes('message') || a.includes('calendar')
         ) || false,
@@ -200,7 +200,7 @@ function getPersonaRules(): PersonaRule[] {
     {
       id: 'activity-tasks',
       priority: 40,
-      condition: (ctx) =>
+      applies: (ctx: PersonaContext) =>
         ctx.recentActivity?.some(
           a => a.includes('task') || a.includes('todo') || a.includes('checklist')
         ) || false,

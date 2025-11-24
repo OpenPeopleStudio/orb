@@ -1,11 +1,122 @@
 // packages/forge/src/runtime.ts
 // Orb runtime helper utilities kept for backwards compatibility.
 
-import { buildPersonaBrief, type PersonaBrief } from '@orb-system/core-luna';
-import { buildActionPlan, type ActionPlan } from '@orb-system/core-mav';
-import { ORB_CONTEXTS, type OrbRole } from '@orb-system/core-orb';
-import { analyzeIntent, type SolInsight, summarizeSignals } from '@orb-system/core-sol';
-import { reflect, type Reflection } from '@orb-system/core-te';
+import { OrbRole, createOrbContext, type OrbContext } from '@orb-system/core-orb';
+
+// Stub types (TODO: implement in respective core packages)
+export interface PersonaBrief {
+  title: string;
+  voice: string;
+  description: string;
+  traits: string[];
+}
+
+export interface SolInsight {
+  summary: string;
+  intent: string;
+  confidence: number;
+  keywords: string[];
+}
+
+export interface Reflection {
+  summary: string;
+  insights: string[];
+  patterns: string[];
+}
+
+export interface ActionPlan {
+  actions: Array<{
+    id: string;
+    summary: string;
+    status: string;
+    etaMinutes: number;
+  }>;
+}
+
+// Stub implementation for buildPersonaBrief (TODO: move to core-luna)
+const buildPersonaBrief = (role: OrbRole): PersonaBrief => {
+  const personas: Record<OrbRole, PersonaBrief> = {
+    [OrbRole.ORB]: { 
+      title: 'Orchestrator', 
+      voice: 'strategic', 
+      description: 'System orchestrator', 
+      traits: ['strategic', 'balanced'] 
+    },
+    [OrbRole.SOL]: { 
+      title: 'Analyzer', 
+      voice: 'analytical', 
+      description: 'Intent analyzer', 
+      traits: ['analytical', 'insightful'] 
+    },
+    [OrbRole.TE]: { 
+      title: 'Reflector', 
+      voice: 'contemplative', 
+      description: 'Reflection engine', 
+      traits: ['reflective', 'learning'] 
+    },
+    [OrbRole.MAV]: { 
+      title: 'Executor', 
+      voice: 'practical', 
+      description: 'Action executor', 
+      traits: ['practical', 'decisive'] 
+    },
+    [OrbRole.LUNA]: { 
+      title: 'Adapter', 
+      voice: 'empathetic', 
+      description: 'Preference manager', 
+      traits: ['adaptive', 'user-focused'] 
+    },
+    [OrbRole.FORGE]: { 
+      title: 'Coordinator', 
+      voice: 'systemic', 
+      description: 'Multi-agent coordinator', 
+      traits: ['orchestrating', 'systemic'] 
+    },
+  };
+  return personas[role] || { 
+    title: 'Unknown', 
+    voice: 'neutral', 
+    description: 'Unknown role', 
+    traits: [] 
+  };
+};
+
+// Stub implementation for analyzeIntent (TODO: move to core-sol)
+const analyzeIntent = (context: OrbContext, input: string): SolInsight => {
+  return {
+    summary: input,
+    intent: 'general',
+    confidence: 0.8,
+    keywords: input.split(' ').slice(0, 3),
+  };
+};
+
+// Stub implementation for reflect (TODO: move to core-te)
+const reflect = (context: OrbContext, summaries: string[]): Reflection => {
+  return {
+    summary: summaries.length > 0 ? summaries[summaries.length - 1] : 'No insights yet',
+    insights: summaries,
+    patterns: ['Consistent progress', 'Active engagement'],
+  };
+};
+
+// Stub implementation for buildActionPlan (TODO: move to core-mav)
+const buildActionPlan = (context: OrbContext, goals: string[]): ActionPlan => {
+  return {
+    actions: goals.map((goal, idx) => ({
+      id: `action-${idx}`,
+      summary: goal,
+      status: 'pending',
+      etaMinutes: 15 + idx * 10,
+    })),
+  };
+};
+
+// Stub implementation for summarizeSignals (TODO: move to core-sol)
+const summarizeSignals = (insights: SolInsight[]): string => {
+  if (insights.length === 0) return 'No signals yet';
+  return `${insights.length} insights tracked`;
+};
 
 export interface OrbRuntime {
   role: OrbRole;
@@ -18,7 +129,7 @@ export interface OrbRuntime {
 }
 
 export const buildOrbRuntime = (role: OrbRole): OrbRuntime => {
-  const context = ORB_CONTEXTS[role];
+  const context = createOrbContext(role, `session-${Date.now()}`);
   const persona = buildPersonaBrief(role);
   const insights: SolInsight[] = [];
 
@@ -42,9 +153,4 @@ export const buildOrbRuntime = (role: OrbRole): OrbRuntime => {
     summary,
   };
 };
-
-export { analyzeIntent, summarizeSignals } from '@orb-system/core-sol';
-export { reflect } from '@orb-system/core-te';
-export { buildActionPlan } from '@orb-system/core-mav';
-export { buildPersonaBrief } from '@orb-system/core-luna';
 

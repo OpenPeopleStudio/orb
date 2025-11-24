@@ -1,9 +1,5 @@
 packages:
-  - "orb-system/packages/*"
-  - "orb-system/apps/*"
-  - "packages/core-luna"
-  - "packages/core-mav"
-  - "packages/core-te"
-  - "packages/core-sol"
+  - "apps/orb-web"
   - "packages/forge"
-  - "apps/*"
+  - "orb-system/packages/*"
+  - "orb-system/apps/orb-cli"

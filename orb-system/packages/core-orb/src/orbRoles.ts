@@ -6,11 +6,25 @@
  */
 
 export enum OrbRole {
+  ORB = 'orb',   // System orchestrator
   SOL = 'sol',   // Engine / inference / brain
   TE = 'te',     // Reflection / memory
   MAV = 'mav',   // Actions / tools
   LUNA = 'luna', // Preferences / intent
+  FORGE = 'forge', // Multi-agent coordinator
 }
+
+/**
+ * Standard role order for display and iteration
+ */
+export const roleOrder = [
+  OrbRole.ORB,
+  OrbRole.SOL,
+  OrbRole.TE,
+  OrbRole.MAV,
+  OrbRole.LUNA,
+  OrbRole.FORGE,
+] as const;
 
 /**
  * Orb Context
@@ -64,10 +78,12 @@ export function validateRole(context: OrbContext, expectedRole: OrbRole): boolea
  */
 export function getRoleDisplayName(role: OrbRole): string {
   const names: Record<OrbRole, string> = {
+    [OrbRole.ORB]: 'Orb',
     [OrbRole.SOL]: 'Sol',
     [OrbRole.TE]: 'Te',
     [OrbRole.MAV]: 'Mav',
     [OrbRole.LUNA]: 'Luna',
+    [OrbRole.FORGE]: 'Forge',
   };
   return names[role];
 }
@@ -77,10 +93,12 @@ export function getRoleDisplayName(role: OrbRole): string {
  */
 export function getRoleDescription(role: OrbRole): string {
   const descriptions: Record<OrbRole, string> = {
+    [OrbRole.ORB]: 'System orchestrator and coordinator',
     [OrbRole.SOL]: 'What the model runs on (engine/inference/brain)',
     [OrbRole.TE]: 'What the model reflects on (memory/evaluation/self-critique)',
     [OrbRole.MAV]: 'What the model accomplishes (actions/tools/execution)',
     [OrbRole.LUNA]: 'What the user decides they want it to be (intent/preferences/constraints)',
+    [OrbRole.FORGE]: 'Multi-agent coordination and orchestration',
   };
   return descriptions[role];
 }
@@ -101,6 +119,13 @@ export interface OrbPalette {
  */
 export function getOrbPalette(role: OrbRole): OrbPalette {
   const palettes: Record<OrbRole, OrbPalette> = {
+    [OrbRole.ORB]: {
+      accent: '#b9e4ff', // Light blue
+      surface: '#0c0f13',
+      background: '#05070a',
+      textPrimary: '#ffffff',
+      textMuted: '#a0b0c0',
+    },
     [OrbRole.SOL]: {
       accent: '#00d4ff', // Cyan
       surface: '#001a26',
@@ -128,6 +153,13 @@ export function getOrbPalette(role: OrbRole): OrbPalette {
       background: '#14000d',
       textPrimary: '#ffffff',
       textMuted: '#af7f9f',
+    },
+    [OrbRole.FORGE]: {
+      accent: '#e0b0ff', // Light purple
+      surface: '#1a0026',
+      background: '#0d0014',
+      textPrimary: '#ffffff',
+      textMuted: '#9f7faf',
     },
   };
   return palettes[role];

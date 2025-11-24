@@ -1,11 +1,9 @@
-import { createOrbContext } from '@orb-system/core-orb';
+import { OrbRole, createOrbContext } from '@orb-system/core-orb';
 const roleVoices = {
-    orb: 'systems',
-    sol: 'narrative',
-    te: 'operational',
-    mav: 'operational',
-    luna: 'design',
-    forge: 'systems',
+    [OrbRole.SOL]: 'narrative',
+    [OrbRole.TE]: 'operational',
+    [OrbRole.MAV]: 'operational',
+    [OrbRole.LUNA]: 'design',
 };
 export const buildPersonaBrief = (role, overrides = {}) => {
     const sessionId = overrides.sessionId || `session-${Date.now()}`;

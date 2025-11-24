@@ -2,6 +2,7 @@
   "name": "@orb-system/core-sol",
   "version": "0.1.0",
   "description": "Inference/engine layer for Orb system (Sol)",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

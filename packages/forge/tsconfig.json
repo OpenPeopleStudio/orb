@@ -1,17 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "composite": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo"
+    "outDir": "dist"
   },
-  "include": ["src/**/*"],
-  "references": [
-    { "path": "../core-orb" },
-    { "path": "../core-sol" },
-    { "path": "../core-te" },
-    { "path": "../core-mav" },
-    { "path": "../core-luna" }
-  ]
+  "include": ["src/**/*"]
 }

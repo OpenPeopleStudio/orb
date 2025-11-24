@@ -10,7 +10,7 @@
 
 import type { OrbEvent } from '@orb-system/core-orb';
 import type { Pattern, DetectionOptions } from '@orb-system/core-orb';
-import { OrbEventType } from '@orb-system/core-orb';
+import { OrbEventType, OrbMode } from '@orb-system/core-orb';
 
 export class PatternDetector {
   /**
@@ -203,7 +203,7 @@ export class PatternDetector {
       if (event.mode && event.deviceId) {
         const context = event.deviceId;
         
-        const data = contextModes.get(context) || { modes: new Map(), eventIds: [] };
+        const data = contextModes.get(context) || { modes: new Map<string, number>(), eventIds: [] as string[] };
         data.modes.set(event.mode, (data.modes.get(event.mode) || 0) + 1);
         data.eventIds.push(event.id);
         contextModes.set(context, data);
@@ -225,7 +225,7 @@ export class PatternDetector {
             detectedAt: new Date().toISOString(),
             confidence: Math.min(1.0, usageRate * 1.1),
             data: {
-              modes: [mode],
+              modes: [mode as OrbMode],
               context,
               usageRate,
               count,

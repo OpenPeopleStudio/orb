@@ -2,6 +2,7 @@
   "name": "@orb-system/core-mav",
   "version": "0.1.0",
   "description": "Actions/tools layer for Orb system (Mav)",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

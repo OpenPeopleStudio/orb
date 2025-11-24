@@ -6,7 +6,7 @@
  * Role: Core identity layer (used by all packages)
  */
 
-import type { PersonaContext, PersonaClassificationResult } from './types';
+import type { PersonaContext, PersonaClassificationResult } from '../persona/types';
 
 /**
  * Persona Classifier Interface

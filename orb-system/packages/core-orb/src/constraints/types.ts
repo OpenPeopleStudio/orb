@@ -23,6 +23,11 @@ export interface ActionContext {
   persona: OrbPersona;
   feature?: string; // e.g. 'SWL', 'RealEstate', 'Personal'
   role?: OrbRole;
+  action?: {
+    type: string;
+    risk?: RiskLevel;
+    metadata?: Record<string, unknown>;
+  };
   timestamp?: string;
   metadata?: Record<string, unknown>;
 }
@@ -49,18 +54,34 @@ export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 /**
  * Constraint Severity - how serious a violation is
  */
-export type ConstraintSeverity = 'warning' | 'error' | 'critical';
+export type ConstraintSeverity = 'warn' | 'warning' | 'block' | 'error' | 'critical';
+
+/**
+ * Evaluation Result - result of evaluating a single constraint
+ */
+export interface EvaluationResult {
+  status: 'pass' | 'warn' | 'block';
+  reason?: string;
+}
 
 /**
  * Constraint - a single constraint definition
  */
 export interface Constraint {
   id: string;
-  type: ConstraintType;
-  active: boolean;
+  type?: ConstraintType;
+  active?: boolean;
   severity: ConstraintSeverity;
   
   // Scope - when does this constraint apply?
+  appliesTo?: {
+    actions?: string[];
+    modes?: OrbMode[];
+    personas?: OrbPersona[];
+    devices?: OrbDevice[];
+    roles?: OrbRole[];
+    features?: string[];
+  };
   appliesToModes?: OrbMode[];
   appliesToPersonas?: OrbPersona[];
   appliesToDevices?: OrbDevice[];
@@ -74,8 +95,12 @@ export interface Constraint {
   allowedModes?: OrbMode[];  // For mode_transition
   requiredPersona?: OrbPersona; // For persona_mismatch
   
+  // Evaluation function
+  evaluate?: (context: ActionContext) => EvaluationResult;
+  
   // Metadata
-  description: string;
+  label?: string;            // Human-readable label
+  description?: string;
   reason?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -87,10 +112,13 @@ export interface Constraint {
  */
 export interface ConstraintSet {
   id: string;
-  name: string;
+  name?: string;
+  label?: string;
   description?: string;
+  scope?: string;
+  tags?: string[];
   constraints: Constraint[];
-  priority: number; // Higher = evaluated first
+  priority?: number; // Higher = evaluated first
   metadata?: Record<string, unknown>;
 }
 

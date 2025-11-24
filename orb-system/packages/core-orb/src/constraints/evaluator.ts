@@ -36,7 +36,7 @@ export function evaluateAction(
   let effectiveRisk: RiskLevel = action.estimatedRisk || 'low';
   
   // Sort constraint sets by priority (highest first)
-  const sortedSets = [...constraintSets].sort((a, b) => b.priority - a.priority);
+  const sortedSets = [...constraintSets].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   
   // Evaluate each constraint set
   for (const constraintSet of sortedSets) {
@@ -54,7 +54,7 @@ export function evaluateAction(
       if (violation) {
         triggeredConstraints.push({
           constraintId: constraint.id,
-          constraintType: constraint.type,
+          constraintType: constraint.type || 'other',
           severity: constraint.severity,
           reason: violation.reason,
           metadata: violation.metadata,

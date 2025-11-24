@@ -15,10 +15,12 @@ export interface LogContext {
 }
 
 const ROLE_COLORS: Record<OrbRole, string> = {
+  [OrbRole.ORB]: '\x1b[34m',  // Blue
   [OrbRole.SOL]: '\x1b[36m', // Cyan
   [OrbRole.TE]: '\x1b[32m',  // Green
   [OrbRole.MAV]: '\x1b[33m',  // Yellow
   [OrbRole.LUNA]: '\x1b[35m', // Magenta
+  [OrbRole.FORGE]: '\x1b[95m', // Bright Magenta
 };
 
 const RESET = '\x1b[0m';

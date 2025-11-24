@@ -15,6 +15,7 @@ export interface PersonaContext {
   device?: OrbDevice;
   mode?: OrbMode;
   feature?: string; // e.g. 'SWL', 'RealEstate', 'Personal'
+  stream?: string; // e.g. 'deals', 'relationships', 'tasks'
   location?: string;
   timeOfDay?: string; // ISO time or hour
   recentActivity?: string[]; // Recent action/event types
@@ -38,10 +39,11 @@ export interface PersonaClassificationResult {
  */
 export interface PersonaRule {
   id: string;
-  priority: number;
-  condition: (context: PersonaContext) => boolean;
+  priority?: number;
+  description?: string;
+  applies: (context: PersonaContext) => boolean;
   persona: OrbPersona;
   confidence: number;
-  reasoning: string;
+  reasoning?: string;
 }
 

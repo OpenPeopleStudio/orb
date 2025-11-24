@@ -2,20 +2,22 @@
   "name": "orb-system",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@9.12.3",
   "workspaces": [
-    "packages/*",
-    "apps/*",
+    "apps/orb-web",
+    "packages/forge",
     "orb-system/packages/*",
-    "orb-system/apps/*"
+    "orb-system/apps/orb-cli"
   ],
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "pnpm --filter apps/orb-web dev",
-    "build": "pnpm run build:deps && pnpm run build:core && pnpm run build:apps",
-    "build:deps": "pnpm --filter \"@orb-system/core-luna\" build && pnpm --filter \"@orb-system/core-mav\" build && pnpm --filter \"@orb-system/core-te\" build && pnpm --filter \"@orb-system/core-sol\" build",
+    "build": "pnpm run build:core && pnpm run build:deps && pnpm run build:forge && pnpm run build:apps",
     "build:core": "pnpm --filter \"@orb-system/core-orb\" build",
+    "build:deps": "pnpm --filter \"@orb-system/core-luna\" build && pnpm --filter \"@orb-system/core-mav\" build && pnpm --filter \"@orb-system/core-te\" build && pnpm --filter \"@orb-system/core-sol\" build",
+    "build:forge": "pnpm --filter \"@orb-system/forge\" build",
     "build:apps": "pnpm --filter \"apps/*\" build && pnpm --filter \"orb-system/apps/*\" build",
     "build:all": "pnpm run -r build",
     "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\" --max-warnings=0",

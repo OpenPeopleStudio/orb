@@ -12,8 +12,7 @@ import type {
   ConstraintSet,
   TriggeredConstraint,
 } from './types';
-import type { OrbMode } from '../identity/types';
-import { ORB_MODE_DESCRIPTORS } from '../identity/types';
+import { OrbMode, ORB_MODE_DESCRIPTORS } from '../identity/types';
 
 /**
  * Validate a mode transition request
@@ -181,30 +180,30 @@ export function getRecommendedMode(context: ActionContext): OrbMode {
   // Device-based defaults
   if (device) {
     const deviceToMode: Record<string, OrbMode> = {
-      sol: 'sol',
-      luna: 'forge',
-      mars: 'mars',
-      earth: 'earth',
+      sol: OrbMode.SOL,
+      luna: OrbMode.FORGE,
+      mars: OrbMode.MARS,
+      earth: OrbMode.EARTH,
     };
     
     if (deviceToMode[device]) {
-      return deviceToMode[device] as OrbMode;
+      return deviceToMode[device];
     }
   }
   
   // Persona-based defaults
   const personaToMode: Record<string, OrbMode> = {
-    personal: 'sol',
-    swl: 'mars',
-    real_estate: 'real_estate',
-    open_people: 'explorer',
+    personal: OrbMode.SOL,
+    swl: OrbMode.MARS,
+    real_estate: OrbMode.REAL_ESTATE,
+    open_people: OrbMode.EXPLORER,
   };
   
   if (personaToMode[persona]) {
-    return personaToMode[persona] as OrbMode;
+    return personaToMode[persona];
   }
   
   // Fallback to default
-  return 'default';
+  return OrbMode.DEFAULT;
 }
 
