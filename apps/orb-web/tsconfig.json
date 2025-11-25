@@ -7,10 +7,10 @@
   "include": ["src", "vite.config.ts", "tailwind.config.ts"],
   "references": [
     { "path": "../../orb-system/packages/core-orb" },
-    { "path": "../../packages/core-sol" },
-    { "path": "../../packages/core-te" },
-    { "path": "../../packages/core-mav" },
-    { "path": "../../packages/core-luna" },
+    { "path": "../../orb-system/packages/core-sol" },
+    { "path": "../../orb-system/packages/core-te" },
+    { "path": "../../orb-system/packages/core-mav" },
+    { "path": "../../orb-system/packages/core-luna" },
     { "path": "../../packages/forge" }
   ]
 }

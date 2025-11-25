@@ -1,11 +1,11 @@
 // packages/forge/src/mission-types.ts
 // Types for mission processing and agent coordination
 
+import type { PersonaBrief } from '@orb-system/core-luna';
+import type { ActionPlan } from '@orb-system/core-mav';
 import { OrbRole } from '@orb-system/core-orb';
 import type { SolInsight } from '@orb-system/core-sol';
 import type { Reflection } from '@orb-system/core-te';
-import type { ActionPlan } from '@orb-system/core-mav';
-import type { PersonaBrief } from '@orb-system/core-luna';
 
 export type MissionStatus = 
   | 'idle'

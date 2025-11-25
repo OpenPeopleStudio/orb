@@ -5,8 +5,8 @@
  * This runs in Node.js context and can access the event bus directly.
  */
 
-import type { EventFilter, EventStats } from '@orb-system/core-orb';
-import { getEventBus, initializeEventSinks } from '@orb-system/core-orb';
+import type { EventFilter, EventStats } from '../shims/core-orb';
+import { getEventBus, initializeEventSinks } from '../shims/core-orb';
 
 // Ensure event sinks are initialized
 let sinksInitialized = false;

@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS finance_accounts (
 );
 
 -- Indexes
-CREATE INDEX idx_finance_accounts_user ON finance_accounts(user_id);
-CREATE INDEX idx_finance_accounts_status ON finance_accounts(status);
-CREATE INDEX idx_finance_accounts_type ON finance_accounts(type);
+CREATE INDEX IF NOT EXISTS idx_finance_accounts_user ON finance_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_finance_accounts_status ON finance_accounts(status);
+CREATE INDEX IF NOT EXISTS idx_finance_accounts_type ON finance_accounts(type);
 
 -- ============================================================================
 -- 2. CATEGORIES TABLE
@@ -74,9 +74,9 @@ CREATE TABLE IF NOT EXISTS finance_categories (
 );
 
 -- Indexes
-CREATE INDEX idx_finance_categories_type ON finance_categories(type);
-CREATE INDEX idx_finance_categories_parent ON finance_categories(parent_id);
-CREATE INDEX idx_finance_categories_active ON finance_categories(is_active);
+CREATE INDEX IF NOT EXISTS idx_finance_categories_type ON finance_categories(type);
+CREATE INDEX IF NOT EXISTS idx_finance_categories_parent ON finance_categories(parent_id);
+CREATE INDEX IF NOT EXISTS idx_finance_categories_active ON finance_categories(is_active);
 
 -- ============================================================================
 -- 3. TRANSACTIONS TABLE
@@ -116,16 +116,16 @@ CREATE TABLE IF NOT EXISTS finance_transactions (
 );
 
 -- Indexes
-CREATE INDEX idx_finance_transactions_user ON finance_transactions(user_id);
-CREATE INDEX idx_finance_transactions_account ON finance_transactions(account_id);
-CREATE INDEX idx_finance_transactions_date ON finance_transactions(date_posted DESC);
-CREATE INDEX idx_finance_transactions_category ON finance_transactions(category_id);
-CREATE INDEX idx_finance_transactions_review_status ON finance_transactions(review_status);
-CREATE INDEX idx_finance_transactions_intent ON finance_transactions(intent_label);
-CREATE INDEX idx_finance_transactions_source ON finance_transactions(source);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_user ON finance_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_account ON finance_transactions(account_id);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_date ON finance_transactions(date_posted DESC);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_category ON finance_transactions(category_id);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_review_status ON finance_transactions(review_status);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_intent ON finance_transactions(intent_label);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_source ON finance_transactions(source);
 
 -- GIN index for JSONB tags search
-CREATE INDEX idx_finance_transactions_tags ON finance_transactions USING GIN (tags);
+CREATE INDEX IF NOT EXISTS idx_finance_transactions_tags ON finance_transactions USING GIN (tags);
 
 -- ============================================================================
 -- 4. BUDGETS TABLE
@@ -154,9 +154,9 @@ CREATE TABLE IF NOT EXISTS finance_budgets (
 );
 
 -- Indexes
-CREATE INDEX idx_finance_budgets_user ON finance_budgets(user_id);
-CREATE INDEX idx_finance_budgets_category ON finance_budgets(category_id);
-CREATE INDEX idx_finance_budgets_period ON finance_budgets(period);
+CREATE INDEX IF NOT EXISTS idx_finance_budgets_user ON finance_budgets(user_id);
+CREATE INDEX IF NOT EXISTS idx_finance_budgets_category ON finance_budgets(category_id);
+CREATE INDEX IF NOT EXISTS idx_finance_budgets_period ON finance_budgets(period);
 
 -- ============================================================================
 -- 5. REVIEW SESSIONS TABLE
@@ -182,9 +182,9 @@ CREATE TABLE IF NOT EXISTS finance_review_sessions (
 );
 
 -- Indexes
-CREATE INDEX idx_finance_review_sessions_user ON finance_review_sessions(user_id);
-CREATE INDEX idx_finance_review_sessions_started ON finance_review_sessions(started_at DESC);
-CREATE INDEX idx_finance_review_sessions_scope ON finance_review_sessions(scope);
+CREATE INDEX IF NOT EXISTS idx_finance_review_sessions_user ON finance_review_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_finance_review_sessions_started ON finance_review_sessions(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_finance_review_sessions_scope ON finance_review_sessions(scope);
 
 -- ============================================================================
 -- 6. ROW LEVEL SECURITY (RLS)
@@ -198,66 +198,81 @@ ALTER TABLE finance_budgets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE finance_review_sessions ENABLE ROW LEVEL SECURITY;
 
 -- Accounts policies
+DROP POLICY IF EXISTS "Users can view their own accounts" ON finance_accounts;
 CREATE POLICY "Users can view their own accounts"
   ON finance_accounts FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own accounts" ON finance_accounts;
 CREATE POLICY "Users can insert their own accounts"
   ON finance_accounts FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own accounts" ON finance_accounts;
 CREATE POLICY "Users can update their own accounts"
   ON finance_accounts FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can delete their own accounts" ON finance_accounts;
 CREATE POLICY "Users can delete their own accounts"
   ON finance_accounts FOR DELETE
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Categories policies (read-only for core, CRUD for user-created)
+DROP POLICY IF EXISTS "Anyone can view active categories" ON finance_categories;
 CREATE POLICY "Anyone can view active categories"
   ON finance_categories FOR SELECT
   USING (is_active = true);
 
 -- Transactions policies
+DROP POLICY IF EXISTS "Users can view their own transactions" ON finance_transactions;
 CREATE POLICY "Users can view their own transactions"
   ON finance_transactions FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own transactions" ON finance_transactions;
 CREATE POLICY "Users can insert their own transactions"
   ON finance_transactions FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own transactions" ON finance_transactions;
 CREATE POLICY "Users can update their own transactions"
   ON finance_transactions FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can delete their own transactions" ON finance_transactions;
 CREATE POLICY "Users can delete their own transactions"
   ON finance_transactions FOR DELETE
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Budgets policies
+DROP POLICY IF EXISTS "Users can view their own budgets" ON finance_budgets;
 CREATE POLICY "Users can view their own budgets"
   ON finance_budgets FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own budgets" ON finance_budgets;
 CREATE POLICY "Users can insert their own budgets"
   ON finance_budgets FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own budgets" ON finance_budgets;
 CREATE POLICY "Users can update their own budgets"
   ON finance_budgets FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can delete their own budgets" ON finance_budgets;
 CREATE POLICY "Users can delete their own budgets"
   ON finance_budgets FOR DELETE
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Review sessions policies
+DROP POLICY IF EXISTS "Users can view their own review sessions" ON finance_review_sessions;
 CREATE POLICY "Users can view their own review sessions"
   ON finance_review_sessions FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own review sessions" ON finance_review_sessions;
 CREATE POLICY "Users can insert their own review sessions"
   ON finance_review_sessions FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
@@ -274,21 +289,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_finance_accounts_updated_at ON finance_accounts;
 CREATE TRIGGER update_finance_accounts_updated_at
   BEFORE UPDATE ON finance_accounts
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_finance_categories_updated_at ON finance_categories;
 CREATE TRIGGER update_finance_categories_updated_at
   BEFORE UPDATE ON finance_categories
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_finance_transactions_updated_at ON finance_transactions;
 CREATE TRIGGER update_finance_transactions_updated_at
   BEFORE UPDATE ON finance_transactions
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_finance_budgets_updated_at ON finance_budgets;
 CREATE TRIGGER update_finance_budgets_updated_at
   BEFORE UPDATE ON finance_budgets
   FOR EACH ROW
@@ -313,6 +332,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_finance_budgets_status ON finance_budgets;
 CREATE TRIGGER set_finance_budgets_status
   BEFORE INSERT OR UPDATE OF amount_spent, amount_planned ON finance_budgets
   FOR EACH ROW

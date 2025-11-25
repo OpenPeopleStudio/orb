@@ -15,6 +15,7 @@ import type {
   LunaActiveMode,
   TeReflection,
   MavAction,
+  UserPreferenceRow,
   TableMetadata,
 } from './types';
 
@@ -141,6 +142,18 @@ export async function fetchMavActions(
 }
 
 /**
+ * Fetch User Preferences (admin view)
+ */
+export async function fetchUserPreferencesRows(
+  options?: QueryOptions
+): Promise<QueryResult<UserPreferenceRow>> {
+  return fetchTableData<UserPreferenceRow>(TableName.USER_PREFERENCES, {
+    ...options,
+    orderBy: 'updated_at',
+  });
+}
+
+/**
  * Get searchable fields for a table
  */
 function getSearchableFields(tableName: TableName): string[] {
@@ -155,6 +168,8 @@ function getSearchableFields(tableName: TableName): string[] {
       return ['user_id', 'session_id', 'input', 'output', 'notes'];
     case TableName.MAV_ACTIONS:
       return ['user_id', 'session_id', 'task_id', 'action_id', 'tool_id', 'kind', 'status'];
+    case TableName.USER_PREFERENCES:
+      return ['user_id'];
     default:
       return [];
   }
@@ -204,6 +219,18 @@ function hasColumn(tableName: TableName, column: string): boolean {
       'output',
       'error',
       'created_at',
+    ],
+    [TableName.USER_PREFERENCES]: [
+      'user_id',
+      'appearance',
+      'notifications',
+      'layout',
+      'widgets',
+      'presets',
+      'device_overrides',
+      'metadata',
+      'created_at',
+      'updated_at',
     ],
   };
 
@@ -298,6 +325,25 @@ export function getTableMetadata(tableName: TableName): TableMetadata {
         { key: 'created_at', label: 'Created', type: 'timestamp' },
       ],
     },
+    [TableName.USER_PREFERENCES]: {
+      name: TableName.USER_PREFERENCES,
+      displayName: 'User Preferences',
+      description: 'Appearance, notifications, layout, and widget settings per user',
+      color: 'accent-luna',
+      icon: '🎨',
+      columns: [
+        { key: 'user_id', label: 'User ID', type: 'text', searchable: true },
+        { key: 'appearance', label: 'Appearance', type: 'json' },
+        { key: 'notifications', label: 'Notifications', type: 'json' },
+        { key: 'layout', label: 'Layout', type: 'json' },
+        { key: 'widgets', label: 'Widgets', type: 'json' },
+        { key: 'presets', label: 'Presets', type: 'json' },
+        { key: 'device_overrides', label: 'Device Overrides', type: 'json' },
+        { key: 'metadata', label: 'Metadata', type: 'json' },
+        { key: 'created_at', label: 'Created', type: 'timestamp' },
+        { key: 'updated_at', label: 'Updated', type: 'timestamp' },
+      ],
+    },
   };
 
   return metadata[tableName];
@@ -313,6 +359,7 @@ export function getAllTables(): TableMetadata[] {
     getTableMetadata(TableName.LUNA_ACTIVE_MODES),
     getTableMetadata(TableName.TE_REFLECTIONS),
     getTableMetadata(TableName.MAV_ACTIONS),
+    getTableMetadata(TableName.USER_PREFERENCES),
   ];
 }
 

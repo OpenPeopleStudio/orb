@@ -4,7 +4,10 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { processMissionStream, type MissionState, type MissionResult } from '@orb-system/forge';
+
+import type { MissionState, MissionResult } from '@orb-system/forge';
+
+import { streamMission } from '../lib/mission-service';
 import { saveMission } from '../lib/mission-storage';
 
 interface UseMissionOptions {
@@ -47,29 +50,27 @@ export function useMission(options: UseMissionOptions): UseMissionReturn {
     let finalResult: MissionResult | null = null;
 
     try {
-      const stream = processMissionStream(prompt, {
+      finalResult = await streamMission({
+        prompt,
         userId: options.userId,
         sessionId: options.sessionId,
+        signal: abortControllerRef.current.signal,
+        onUpdate: (update) => {
+          if (abortControllerRef.current?.signal.aborted) {
+            return;
+          }
+          setState(update);
+        },
       });
-
-      // Process each update from the stream
-      for await (const update of stream) {
-        if (abortControllerRef.current.signal.aborted) {
-          break;
-        }
-        setState(update);
-        
-        // Capture the final result
-        if ('success' in update) {
-          finalResult = update as unknown as MissionResult;
-        }
-      }
 
       // Auto-save to history if enabled
       if (autoSave && finalResult) {
         saveMission(finalResult);
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       console.error('[useMission] Error processing mission:', err);
     } finally {

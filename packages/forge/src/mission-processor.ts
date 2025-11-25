@@ -1,16 +1,15 @@
 // packages/forge/src/mission-processor.ts
 // Mission processing orchestrator that coordinates agents
 
+import { buildPersonaBrief } from '@orb-system/core-luna';
+import { buildActionPlan } from '@orb-system/core-mav';
 import { OrbRole, createOrbContext } from '@orb-system/core-orb';
 import { analyzeIntent } from '@orb-system/core-sol';
 import { reflect } from '@orb-system/core-te';
-import { buildActionPlan } from '@orb-system/core-mav';
-import { buildPersonaBrief } from '@orb-system/core-luna';
 
 import type {
   MissionPrompt,
   MissionState,
-  MissionStatus,
   MissionProcessingOptions,
   MissionResult,
   SolResponse,

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { OrbPersona, getPersonaDisplayName } from '@orb-system/core-orb';
-
 import { usePreferences } from '../hooks/usePreferences';
+import { getPersonaDisplayName, OrbPersona } from '../shims/core-orb';
 
 const personaOptions = [
   { id: 'auto', label: 'Auto detect' },

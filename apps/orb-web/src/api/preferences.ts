@@ -3,7 +3,7 @@ import {
   createProfileFromPreset,
   type Mode,
   type Persona,
-} from '@orb-system/core-luna';
+} from '../shims/core-luna';
 import {
   OrbDevice,
   OrbPersona,
@@ -12,7 +12,7 @@ import {
   setPersonaOverride,
   type ActionContext,
   type ConstraintSet,
-} from '@orb-system/core-orb';
+} from '../shims/core-orb';
 
 const DEFAULT_USER_ID = 'demo-user';
 const DEFAULT_DEVICE = OrbDevice.SOL;

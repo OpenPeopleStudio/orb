@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+import { syncEmailsWithCrm, getContacts as getCrmContacts } from '../lib/crm';
 import { emailClient } from '../lib/email';
 import type { Email } from '../lib/email';
 import type { UnifiedItem, Message, Contact, InboxStats } from '../lib/inbox';
 import { mergeAndSort } from '../lib/inbox';
-import { syncEmailsWithCrm, getContacts as getCrmContacts } from '../lib/crm';
 import { isSupabaseConfigured } from '../lib/supabase/client';
 
 interface InboxContextValue {

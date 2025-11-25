@@ -12,12 +12,31 @@ import type {
 } from './types';
 import { OrbPersona, OrbDevice, OrbMode } from '../identity/types';
 
+const personaOverrides = new Map<string, OrbPersona>();
+
+function getOverrideForContext(context: PersonaContext): OrbPersona | null {
+  if (!context.userId) {
+    return null;
+  }
+  return personaOverrides.get(context.userId) ?? null;
+}
+
 /**
  * Classify persona based on context
  * 
  * Returns the best-matching persona with confidence and reasoning.
  */
 export function classifyPersona(context: PersonaContext): PersonaClassificationResult {
+  const override = getOverrideForContext(context);
+  if (override) {
+    return {
+      persona: override,
+      confidence: 1,
+      source: 'override',
+      reasoning: ['User override is active'],
+    };
+  }
+
   // Check for explicit persona (highest priority)
   if (context.explicitPersona) {
     return {
@@ -234,6 +253,40 @@ function inferSource(
 export function getRecommendedPersona(context: PersonaContext): OrbPersona {
   const result = classifyPersona(context);
   return result.persona;
+}
+
+/**
+ * Set or clear a persona override for a user.
+ */
+export function setPersonaOverride(userId: string, persona: OrbPersona | null): void {
+  if (!userId) {
+    return;
+  }
+  if (persona) {
+    personaOverrides.set(userId, persona);
+  } else {
+    personaOverrides.delete(userId);
+  }
+}
+
+/**
+ * Get the active persona override for a user, if one exists.
+ */
+export function getPersonaOverride(userId: string): OrbPersona | null {
+  if (!userId) {
+    return null;
+  }
+  return personaOverrides.get(userId) ?? null;
+}
+
+/**
+ * Clear any persona override for the provided user.
+ */
+export function clearPersonaOverride(userId: string): void {
+  if (!userId) {
+    return;
+  }
+  personaOverrides.delete(userId);
 }
 
 /**

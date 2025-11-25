@@ -8,15 +8,7 @@ import { apiPlugin } from './vite-plugin-api';
 export default defineConfig({
   plugins: [react(), apiPlugin()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@orb-system/core-orb': path.resolve(__dirname, '../../orb-system/packages/core-orb/src'),
-      '@orb-system/core-sol': path.resolve(__dirname, '../../packages/core-sol/src'),
-      '@orb-system/core-te': path.resolve(__dirname, '../../packages/core-te/src'),
-      '@orb-system/core-mav': path.resolve(__dirname, '../../packages/core-mav/src'),
-      '@orb-system/core-luna': path.resolve(__dirname, '../../packages/core-luna/src'),
-      '@orb-system/forge': path.resolve(__dirname, '../../packages/forge/src'),
-    },
+    alias: [{ find: '@', replacement: path.resolve(__dirname, './src') }],
   },
   server: {
     port: 4321,

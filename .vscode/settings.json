@@ -1,0 +1,5 @@
+{
+  "npm.packageManager": "pnpm",
+  "npm.exclude": ["apps/orb-service/package.json"]
+}
+

@@ -1,5 +1,6 @@
 packages:
   - "apps/orb-web"
+  - "apps/orb-service"
   - "packages/forge"
   - "orb-system/packages/*"
   - "orb-system/apps/orb-cli"

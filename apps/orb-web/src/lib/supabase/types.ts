@@ -80,6 +80,23 @@ export interface MavAction {
 }
 
 /**
+ * User Preferences Table
+ * Stores per-user appearance and customization settings
+ */
+export interface UserPreferenceRow {
+  user_id: string;
+  appearance: Record<string, unknown>;
+  notifications: Record<string, unknown>;
+  layout: Record<string, unknown>;
+  widgets: Record<string, unknown>;
+  presets: Record<string, unknown>[];
+  device_overrides: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
  * Table names enum for type safety
  */
 export enum TableName {
@@ -88,12 +105,19 @@ export enum TableName {
   LUNA_ACTIVE_MODES = 'luna_active_modes',
   TE_REFLECTIONS = 'te_reflections',
   MAV_ACTIONS = 'mav_actions',
+  USER_PREFERENCES = 'user_preferences',
 }
 
 /**
  * Union type of all table records
  */
-export type TableRecord = SolInsight | LunaProfile | LunaActiveMode | TeReflection | MavAction;
+export type TableRecord =
+  | SolInsight
+  | LunaProfile
+  | LunaActiveMode
+  | TeReflection
+  | MavAction
+  | UserPreferenceRow;
 
 /**
  * Table metadata for UI display

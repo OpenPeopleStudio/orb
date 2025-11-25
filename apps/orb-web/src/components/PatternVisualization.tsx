@@ -8,7 +8,7 @@
 
 import React from 'react';
 
-import type { Pattern } from '@orb-system/core-orb';
+import type { Pattern } from '../shims/core-orb';
 
 interface PatternVisualizationProps {
   patterns: Pattern[];

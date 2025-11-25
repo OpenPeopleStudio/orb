@@ -4,13 +4,13 @@
  * Main UI entry point for Orb console.
  */
 
-import { modeService, Mode, Persona, MODE_DESCRIPTORS } from '@orb-system/core-luna';
+import { modeService, Mode, Persona, MODE_DESCRIPTORS } from './shims/core-luna';
 import {
   createOrbContext,
   OrbRole,
   runDemoFlow as runCoreDemoFlow,
   type DemoFlowResult,
-} from '@orb-system/core-orb';
+} from './shims/core-orb';
 
 export interface UIDemoFlowInput {
   userId?: string;

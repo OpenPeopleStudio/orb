@@ -5,9 +5,10 @@
  */
 
 import type { Email } from '../email/types';
+import { isSupabaseConfigured } from '../supabase/client';
+
 import { linkEmailToContact } from './client';
 import type { LinkEmailRequest, EmailProvider as CrmEmailProvider } from './types';
-import { isSupabaseConfigured } from '../supabase/client';
 
 /**
  * Sync a batch of emails with the CRM

@@ -1,0 +1,110 @@
+.space-background {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  overflow: hidden;
+  color: transparent;
+  --star-hue: 210;
+  --star-saturation: 70%;
+  --star-lightness: 85%;
+  --star-tail-lightness: 92%;
+  --aurora-alpha: 0.25;
+}
+
+.space-background__gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 50% 30%,
+      hsla(var(--star-hue), var(--star-saturation), 65%, var(--aurora-alpha)),
+      transparent 55%
+    ),
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.04), transparent 30%);
+  pointer-events: none;
+}
+
+.space-background__stars,
+.space-background__shooting-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.space-star {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    hsla(var(--star-hue), var(--star-saturation), var(--star-lightness), 0.9) 0%,
+    hsla(var(--star-hue), var(--star-saturation), var(--star-lightness), 0.08) 70%,
+    transparent 100%
+  );
+  filter: blur(1px);
+  animation-name: star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+
+.space-shooting-star {
+  position: absolute;
+  width: 160px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    hsla(var(--star-hue), var(--star-saturation), var(--star-tail-lightness), 0.9) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transform-origin: left center;
+  animation-name: shooting-star;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes star-twinkle {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.9) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.4) translate3d(0, 0, 0);
+  }
+  5% {
+    opacity: 1;
+  }
+  25% {
+    transform: scaleX(1) translate3d(200px, -60px, 0);
+    opacity: 0.9;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(0.4) translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .space-star,
+  .space-shooting-star {
+    animation-duration: 0s !important;
+    animation-iteration-count: 0 !important;
+  }
+}
+

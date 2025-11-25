@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 
-import type { OrbEvent, EventFilter, EventStats } from '@orb-system/core-orb';
+import type { OrbEvent, EventFilter, EventStats } from '../shims/core-orb';
 
 export interface UseEventsOptions {
   filter?: EventFilter;

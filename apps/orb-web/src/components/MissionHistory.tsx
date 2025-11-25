@@ -3,8 +3,9 @@
  * Shows past missions with stats and search
  */
 
-import { useState, useEffect } from 'react';
 import clsx from 'clsx';
+import { useState, useEffect } from 'react';
+
 import {
   getMissionHistory,
   getMissionStats,

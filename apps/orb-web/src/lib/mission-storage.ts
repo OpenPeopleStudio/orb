@@ -3,7 +3,7 @@
  * Stores mission history for retrieval and analysis
  */
 
-import type { MissionState, MissionResult } from '@orb-system/forge';
+import type { MissionResult } from '@orb-system/forge';
 
 const STORAGE_KEY = 'orb_mission_history';
 const MAX_HISTORY_SIZE = 50; // Keep last 50 missions

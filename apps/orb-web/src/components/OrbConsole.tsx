@@ -7,10 +7,9 @@
 
 import { useState } from 'react';
 
-import type { DemoFlowResult, EventFilter } from '@orb-system/core-orb';
-import { OrbEventType, OrbMode, OrbRole } from '@orb-system/core-orb';
-
 import { useEvents } from '../hooks/useEvents';
+import type { DemoFlowResult, EventFilter } from '../shims/core-orb';
+import { OrbEventType, OrbMode, OrbRole } from '../shims/core-orb';
 import { runDemoFlow, type UIDemoFlowResult } from '../ui';
 
 type ModeId = 'default' | 'restaurant' | 'real_estate' | 'builder';

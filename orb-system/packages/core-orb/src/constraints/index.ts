@@ -10,4 +10,5 @@ export * from './evaluator';
 export * from './builder';
 export * from './modeTransitions';
 export * from './storage';
+export { collectConstraintSets as getRelevantConstraintSets } from './evaluator';
 

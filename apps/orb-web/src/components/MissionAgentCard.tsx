@@ -3,10 +3,12 @@
  * Shows real-time updates as agents process the mission
  */
 
-import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { OrbRole } from '@orb-system/core-orb';
+import { useMemo, useState } from 'react';
+
 import type { AnyAgentResponse, MissionState } from '@orb-system/forge';
+
+import { OrbRole } from '../shims/core-orb';
 
 const accentClassMap: Record<OrbRole, string> = {
   [OrbRole.ORB]: 'text-accent-orb',
@@ -41,10 +43,10 @@ interface Props {
 
 export function MissionAgentCard({ role, response, timeline }: Props) {
   const accentClass = accentClassMap[role];
+  const accentSoftClass = `${accentClass}/70`;
   const title = agentTitles[role];
   const status = response?.status || 'idle';
   const statusIcon = statusIcons[status];
-  const isSol = role === OrbRole.SOL;
   const [showRealtime, setShowRealtime] = useState(false);
 
   const agentTimeline = useMemo(
@@ -151,7 +153,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
                   <div>
                     <span className="text-xs text-text-muted uppercase">Timeline:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {data.entities.when.map((item, idx) => (
+                      {data.entities.when.map((item: string, idx: number) => (
                         <span key={idx} className="rounded px-2 py-0.5 bg-accent-sol/20 text-accent-sol text-xs">
                           {item}
                         </span>
@@ -163,7 +165,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
                   <div>
                     <span className="text-xs text-text-muted uppercase">Context:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {data.entities.where.map((item, idx) => (
+                      {data.entities.where.map((item: string, idx: number) => (
                         <span key={idx} className="rounded px-2 py-0.5 bg-accent-sol/20 text-accent-sol text-xs">
                           {item}
                         </span>
@@ -175,7 +177,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
                   <div>
                     <span className="text-xs text-text-muted uppercase">Mentions:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {data.entities.who.slice(0, 3).map((item, idx) => (
+                      {data.entities.who.slice(0, 3).map((item: string, idx: number) => (
                         <span key={idx} className="rounded px-2 py-0.5 bg-accent-sol/20 text-accent-sol text-xs">
                           {item}
                         </span>
@@ -192,7 +194,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
             <div>
               <p className="text-sm text-text-muted mb-2">Key Terms</p>
               <div className="flex flex-wrap gap-1">
-                {data.keywords.slice(0, 6).map((keyword, idx) => (
+                {data.keywords.slice(0, 6).map((keyword: string, idx: number) => (
                   <span key={idx} className="rounded-full px-3 py-1 bg-white/5 text-xs text-text-muted">
                     {keyword}
                   </span>
@@ -221,7 +223,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
             <div>
               <p className="text-sm text-text-muted mb-2">Considerations</p>
               <ul className="space-y-2 text-sm">
-                {data.actions.slice(0, 3).map((action, idx) => (
+                {data.actions.slice(0, 3).map((action: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-2 text-text-muted">
                     <span className={clsx('mt-0.5', accentClass)}>•</span>
                     <span>{action}</span>
@@ -240,7 +242,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
         <div className="space-y-3">
           <p className="text-sm text-text-muted">Action Plan</p>
           <ul className="space-y-2 text-sm">
-            {data.actions.slice(0, 3).map((action) => (
+            {data.actions.slice(0, 3).map((action: { id: string; summary: string; etaMinutes: number; status: string }) => (
               <li key={action.id} className="flex items-center justify-between text-text-muted">
                 <span>{action.summary}</span>
                 <span className={clsx('text-xs font-semibold', accentClass)}>
@@ -271,7 +273,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
             <div>
               <p className="text-sm text-text-muted mb-2">Principles</p>
               <ul className="space-y-1 text-sm">
-                {data.principles.map((principle, idx) => (
+                {data.principles.map((principle: string, idx: number) => (
                   <li key={idx} className="flex items-center gap-2 text-text-muted">
                     <span className={clsx(accentClass)}>•</span>
                     <span>{principle}</span>
@@ -296,7 +298,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
             <div>
               <p className="text-sm text-text-muted mb-2">Next Steps</p>
               <ul className="space-y-2 text-sm">
-                {data.nextSteps.map((step, idx) => (
+                {data.nextSteps.map((step: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-2 text-text-muted">
                     <span className={clsx('font-semibold', accentClass)}>{idx + 1}.</span>
                     <span>{step}</span>
@@ -309,7 +311,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3">
               <p className="text-sm text-red-400 font-medium mb-2">⚠️ Blockers</p>
               <ul className="space-y-1 text-sm text-red-300">
-                {data.blockers.map((blocker, idx) => (
+                {data.blockers.map((blocker: string, idx: number) => (
                   <li key={idx}>• {blocker}</li>
                 ))}
               </ul>
@@ -339,13 +341,15 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
           <span className="text-2xl" title={status}>
             {statusIcon}
           </span>
-          {isSol && agentTimeline.length > 0 && (
+          {agentTimeline.length > 0 && (
             <button
               type="button"
               onClick={() => setShowRealtime((prev) => !prev)}
               className={clsx(
                 'rounded-lg border px-3 py-1 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
-                showRealtime ? 'border-accent-sol text-accent-sol bg-accent-sol/10' : 'border-white/10 text-text-muted hover:text-text-primary'
+                showRealtime
+                  ? clsx(accentClass, 'border-current')
+                  : 'border-white/10 text-text-muted hover:text-text-primary'
               )}
               aria-pressed={showRealtime}
             >
@@ -357,11 +361,13 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
 
       {renderContent()}
 
-      {isSol && showRealtime && agentTimeline.length > 0 && (
-        <div className="space-y-3 rounded-2xl border border-accent-sol/20 bg-accent-sol/5 p-4">
+      {showRealtime && agentTimeline.length > 0 && (
+        <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-accent-sol">Realtime Signal Stream</p>
-            <span className="text-xs uppercase tracking-[0.3em] text-accent-sol/70">live</span>
+            <p className={clsx('text-sm font-semibold', accentClass)}>Realtime Signal Stream</p>
+            <span className={clsx('text-xs uppercase tracking-[0.3em]', accentSoftClass)}>
+              live
+            </span>
           </div>
           <div className="max-h-56 space-y-2 overflow-y-auto pr-2 text-sm text-text-muted">
             {agentTimeline.map((entry, idx) => (
@@ -371,7 +377,7 @@ export function MissionAgentCard({ role, response, timeline }: Props) {
               >
                 <div className="flex items-center justify-between text-xs text-text-muted/80 font-mono">
                   <span>{formatTime(entry.timestamp)}</span>
-                  <span className="uppercase">{entry.event}</span>
+                  <span className={clsx('uppercase', accentClass)}>{entry.event}</span>
                 </div>
                 {entry.details && (
                   <p className="mt-2 text-sm text-text-primary">

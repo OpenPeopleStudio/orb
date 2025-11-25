@@ -29,7 +29,7 @@ export interface PersonaContext {
 export interface PersonaClassificationResult {
   persona: OrbPersona;
   confidence: number; // 0-1
-  source: 'explicit' | 'device' | 'feature' | 'mode' | 'time' | 'activity' | 'default';
+  source: 'override' | 'explicit' | 'device' | 'feature' | 'mode' | 'time' | 'activity' | 'default';
   reasoning: string[];
   alternatives?: Array<{ persona: OrbPersona; confidence: number }>;
 }

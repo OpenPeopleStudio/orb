@@ -5,6 +5,7 @@
  */
 
 import { getSupabaseClient } from '../supabase/client';
+
 import type {
   Contact,
   ContactFilter,

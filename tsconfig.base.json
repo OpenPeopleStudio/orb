@@ -16,7 +16,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@orb-system/*": ["packages/*/src"]
+      "@orb-system/*": [
+        "packages/*/src",
+        "orb-system/packages/*/dist",
+        "orb-system/packages/*/src"
+      ]
     }
   }
 }

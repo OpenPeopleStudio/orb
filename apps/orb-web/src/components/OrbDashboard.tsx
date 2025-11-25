@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
 import clsx from 'clsx';
-
-import { OrbRole } from '@orb-system/core-orb';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useMission } from '../hooks/useMission';
+import type { MissionHistoryEntry } from '../lib/mission-storage';
+import { OrbRole } from '../shims/core-orb';
+
 import { MissionAgentCard } from './MissionAgentCard';
 import { MissionHistory } from './MissionHistory';
-import type { MissionHistoryEntry } from '../lib/mission-storage';
 
 const agentOrder: OrbRole[] = [
   OrbRole.SOL,
@@ -37,17 +37,17 @@ const OrbDashboard = () => {
   });
 
   // Auto-process on mount with initial prompt
+  const handleProcess = useCallback(async () => {
+    if (!missionPrompt.trim()) return;
+    setLastProcessedPrompt(missionPrompt);
+    await processMission(missionPrompt);
+  }, [missionPrompt, processMission]);
+
   useEffect(() => {
     if (!lastProcessedPrompt && missionPrompt) {
       handleProcess();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleProcess = async () => {
-    if (!missionPrompt.trim()) return;
-    setLastProcessedPrompt(missionPrompt);
-    await processMission(missionPrompt);
-  };
+  }, [handleProcess, lastProcessedPrompt, missionPrompt]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isProcessing) {

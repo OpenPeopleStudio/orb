@@ -38,11 +38,11 @@ CREATE TABLE IF NOT EXISTS sol_insights (
 );
 
 -- Indexes
-CREATE INDEX idx_sol_insights_user ON sol_insights(user_id);
-CREATE INDEX idx_sol_insights_session ON sol_insights(session_id);
-CREATE INDEX idx_sol_insights_intent ON sol_insights(intent);
-CREATE INDEX idx_sol_insights_tone ON sol_insights(tone);
-CREATE INDEX idx_sol_insights_created ON sol_insights(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sol_insights_user ON sol_insights(user_id);
+CREATE INDEX IF NOT EXISTS idx_sol_insights_session ON sol_insights(session_id);
+CREATE INDEX IF NOT EXISTS idx_sol_insights_intent ON sol_insights(intent);
+CREATE INDEX IF NOT EXISTS idx_sol_insights_tone ON sol_insights(tone);
+CREATE INDEX IF NOT EXISTS idx_sol_insights_created ON sol_insights(created_at DESC);
 
 -- ============================================================================
 -- 2. LUNA PROFILES TABLE
@@ -121,58 +121,71 @@ ALTER TABLE te_reflections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mav_actions ENABLE ROW LEVEL SECURITY;
 
 -- Sol Insights policies
+DROP POLICY IF EXISTS "Users can view their own insights" ON sol_insights;
 CREATE POLICY "Users can view their own insights"
   ON sol_insights FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own insights" ON sol_insights;
 CREATE POLICY "Users can insert their own insights"
   ON sol_insights FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
 -- Luna Profiles policies
+DROP POLICY IF EXISTS "Users can view their own luna profiles" ON luna_profiles;
 CREATE POLICY "Users can view their own luna profiles"
   ON luna_profiles FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own luna profiles" ON luna_profiles;
 CREATE POLICY "Users can insert their own luna profiles"
   ON luna_profiles FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own luna profiles" ON luna_profiles;
 CREATE POLICY "Users can update their own luna profiles"
   ON luna_profiles FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Luna Active Modes policies
+DROP POLICY IF EXISTS "Users can view their own active mode" ON luna_active_modes;
 CREATE POLICY "Users can view their own active mode"
   ON luna_active_modes FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own active mode" ON luna_active_modes;
 CREATE POLICY "Users can insert their own active mode"
   ON luna_active_modes FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own active mode" ON luna_active_modes;
 CREATE POLICY "Users can update their own active mode"
   ON luna_active_modes FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Te Reflections policies
+DROP POLICY IF EXISTS "Users can view their own reflections" ON te_reflections;
 CREATE POLICY "Users can view their own reflections"
   ON te_reflections FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own reflections" ON te_reflections;
 CREATE POLICY "Users can insert their own reflections"
   ON te_reflections FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
 -- Mav Actions policies
+DROP POLICY IF EXISTS "Users can view their own actions" ON mav_actions;
 CREATE POLICY "Users can view their own actions"
   ON mav_actions FOR SELECT
   USING (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can insert their own actions" ON mav_actions;
 CREATE POLICY "Users can insert their own actions"
   ON mav_actions FOR INSERT
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 
+DROP POLICY IF EXISTS "Users can update their own actions" ON mav_actions;
 CREATE POLICY "Users can update their own actions"
   ON mav_actions FOR UPDATE
   USING (user_id = current_setting('app.current_user_id', true));

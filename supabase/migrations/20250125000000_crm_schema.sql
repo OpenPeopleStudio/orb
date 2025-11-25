@@ -71,14 +71,15 @@ CREATE TABLE IF NOT EXISTS public.crm_contacts (
 );
 
 -- Indexes
-CREATE INDEX idx_crm_contacts_user_id ON public.crm_contacts(user_id);
-CREATE INDEX idx_crm_contacts_primary_email ON public.crm_contacts(primary_email);
-CREATE INDEX idx_crm_contacts_emails ON public.crm_contacts USING GIN(emails);
-CREATE INDEX idx_crm_contacts_tags ON public.crm_contacts USING GIN(tags);
-CREATE INDEX idx_crm_contacts_search ON public.crm_contacts USING GIN(search_vector);
-CREATE INDEX idx_crm_contacts_last_interaction ON public.crm_contacts(user_id, last_interaction_at DESC);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_user_id ON public.crm_contacts(user_id);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_primary_email ON public.crm_contacts(primary_email);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_emails ON public.crm_contacts USING GIN(emails);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_tags ON public.crm_contacts USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_search ON public.crm_contacts USING GIN(search_vector);
+CREATE INDEX IF NOT EXISTS idx_crm_contacts_last_interaction ON public.crm_contacts(user_id, last_interaction_at DESC);
 
 -- Updated at trigger
+DROP TRIGGER IF EXISTS set_crm_contacts_updated_at ON public.crm_contacts;
 CREATE TRIGGER set_crm_contacts_updated_at
   BEFORE UPDATE ON public.crm_contacts
   FOR EACH ROW
@@ -138,12 +139,12 @@ CREATE TABLE IF NOT EXISTS public.crm_emails (
 );
 
 -- Indexes
-CREATE INDEX idx_crm_emails_user_id ON public.crm_emails(user_id);
-CREATE INDEX idx_crm_emails_contact_id ON public.crm_emails(contact_id, received_at DESC);
-CREATE INDEX idx_crm_emails_account_id ON public.crm_emails(account_id);
-CREATE INDEX idx_crm_emails_thread_id ON public.crm_emails(thread_id);
-CREATE INDEX idx_crm_emails_direction ON public.crm_emails(user_id, direction);
-CREATE INDEX idx_crm_emails_unread ON public.crm_emails(user_id, unread) WHERE unread = TRUE;
+CREATE INDEX IF NOT EXISTS idx_crm_emails_user_id ON public.crm_emails(user_id);
+CREATE INDEX IF NOT EXISTS idx_crm_emails_contact_id ON public.crm_emails(contact_id, received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_crm_emails_account_id ON public.crm_emails(account_id);
+CREATE INDEX IF NOT EXISTS idx_crm_emails_thread_id ON public.crm_emails(thread_id);
+CREATE INDEX IF NOT EXISTS idx_crm_emails_direction ON public.crm_emails(user_id, direction);
+CREATE INDEX IF NOT EXISTS idx_crm_emails_unread ON public.crm_emails(user_id, unread) WHERE unread = TRUE;
 
 --------------------------------------------------------------------------------
 -- 3. CRM Client Context (AI-generated relationship intelligence)
@@ -177,10 +178,11 @@ CREATE TABLE IF NOT EXISTS public.crm_client_context (
 );
 
 -- Index
-CREATE INDEX idx_crm_client_context_contact_id ON public.crm_client_context(contact_id);
-CREATE INDEX idx_crm_client_context_user_id ON public.crm_client_context(user_id);
+CREATE INDEX IF NOT EXISTS idx_crm_client_context_contact_id ON public.crm_client_context(contact_id);
+CREATE INDEX IF NOT EXISTS idx_crm_client_context_user_id ON public.crm_client_context(user_id);
 
 -- Updated at trigger
+DROP TRIGGER IF EXISTS set_crm_client_context_updated_at ON public.crm_client_context;
 CREATE TRIGGER set_crm_client_context_updated_at
   BEFORE UPDATE ON public.crm_client_context
   FOR EACH ROW
@@ -203,8 +205,8 @@ CREATE TABLE IF NOT EXISTS public.crm_client_context_history (
 );
 
 -- Indexes
-CREATE INDEX idx_crm_context_history_contact_id ON public.crm_client_context_history(contact_id, created_at DESC);
-CREATE INDEX idx_crm_context_history_user_id ON public.crm_client_context_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_crm_context_history_contact_id ON public.crm_client_context_history(contact_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_crm_context_history_user_id ON public.crm_client_context_history(user_id);
 
 --------------------------------------------------------------------------------
 -- 5. Helper Functions
@@ -357,61 +359,75 @@ ALTER TABLE public.crm_client_context ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.crm_client_context_history ENABLE ROW LEVEL SECURITY;
 
 -- Contacts policies
+DROP POLICY IF EXISTS "Users can view their own contacts" ON public.crm_contacts;
 CREATE POLICY "Users can view their own contacts"
   ON public.crm_contacts FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own contacts" ON public.crm_contacts;
 CREATE POLICY "Users can insert their own contacts"
   ON public.crm_contacts FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own contacts" ON public.crm_contacts;
 CREATE POLICY "Users can update their own contacts"
   ON public.crm_contacts FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own contacts" ON public.crm_contacts;
 CREATE POLICY "Users can delete their own contacts"
   ON public.crm_contacts FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Emails policies
+DROP POLICY IF EXISTS "Users can view their own emails" ON public.crm_emails;
 CREATE POLICY "Users can view their own emails"
   ON public.crm_emails FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own emails" ON public.crm_emails;
 CREATE POLICY "Users can insert their own emails"
   ON public.crm_emails FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own emails" ON public.crm_emails;
 CREATE POLICY "Users can update their own emails"
   ON public.crm_emails FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own emails" ON public.crm_emails;
 CREATE POLICY "Users can delete their own emails"
   ON public.crm_emails FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Client context policies
+DROP POLICY IF EXISTS "Users can view their own client context" ON public.crm_client_context;
 CREATE POLICY "Users can view their own client context"
   ON public.crm_client_context FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own client context" ON public.crm_client_context;
 CREATE POLICY "Users can insert their own client context"
   ON public.crm_client_context FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own client context" ON public.crm_client_context;
 CREATE POLICY "Users can update their own client context"
   ON public.crm_client_context FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own client context" ON public.crm_client_context;
 CREATE POLICY "Users can delete their own client context"
   ON public.crm_client_context FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Context history policies
+DROP POLICY IF EXISTS "Users can view their own context history" ON public.crm_client_context_history;
 CREATE POLICY "Users can view their own context history"
   ON public.crm_client_context_history FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own context history" ON public.crm_client_context_history;
 CREATE POLICY "Users can insert their own context history"
   ON public.crm_client_context_history FOR INSERT
   WITH CHECK (auth.uid() = user_id);

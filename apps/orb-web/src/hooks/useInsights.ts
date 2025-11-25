@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-import type { Pattern, Insight, LearningAction } from '@orb-system/core-orb';
+import type { Pattern, Insight, LearningAction } from '../shims/core-orb';
 
 export interface UseInsightsResult {
   patterns: Pattern[];

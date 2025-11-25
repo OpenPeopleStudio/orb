@@ -5,14 +5,14 @@
  * mode, and persona settings.
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import type {
   Constraint,
   ConstraintSet,
   PersonaClassificationResult,
-} from '@orb-system/core-orb';
-import { OrbMode, OrbPersona, getModeDisplayName, getPersonaDisplayName } from '@orb-system/core-orb';
+} from '../shims/core-orb';
+import { getModeDisplayName, getPersonaDisplayName, OrbMode, OrbPersona } from '../shims/core-orb';
 
 interface PreferencesData {
   currentMode: OrbMode;

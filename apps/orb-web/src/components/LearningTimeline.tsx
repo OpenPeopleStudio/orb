@@ -8,7 +8,7 @@
 
 import React from 'react';
 
-import type { LearningAction, Insight } from '@orb-system/core-orb';
+import type { LearningAction, Insight } from '../shims/core-orb';
 
 interface LearningTimelineProps {
   actions: LearningAction[];

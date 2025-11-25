@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 
-import { roleOrder } from '@orb-system/core-orb';
 import { type OrbRuntime } from '@orb-system/forge';
+
+import { roleOrder } from '../shims/core-orb';
 
 const accentClassMap: Record<(typeof roleOrder)[number], string> = {
   orb: 'text-accent-orb',
